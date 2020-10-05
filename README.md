@@ -8,7 +8,7 @@ Will update with more informaiton soon.
 
 ## IADS tips:
 
-### INSTALLATIION:
+### INSTALLATION:
  Load at mission start in mission editor using Trigger> 4 Mission Start > Do Script File (this file)
 
  No naming required.
