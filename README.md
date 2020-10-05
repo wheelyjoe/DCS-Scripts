@@ -6,7 +6,11 @@ Drop in scripts to handle IADS and splash damage model changes.
 
 Will update with more informaiton soon.
 
-## IADS tips: 
+## IADS tips:
+
+### INSTALLATIION:
+ Load at mission start in mission editor using Trigger> 4 Mission Start > Do Script File (this file)
+
  No naming required.
  
  Works on red coalition ground units for now.
@@ -19,7 +23,11 @@ Will update with more informaiton soon.
  
  TORs remain on
  
-## Mission Designer tips:
+### Mission Designer tips:
  Don't mix EWR and SAM sites
  
  Don't mix SAM types
+
+## Damage Model Script:
+
+Improves splash damage modelling by pulling weapon warhead info (where available) and using this to create explosions (only way to apply damage) to units in more sensible range. 
