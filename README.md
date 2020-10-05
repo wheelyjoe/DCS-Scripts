@@ -30,4 +30,7 @@ Will update with more informaiton soon.
 
 ## Damage Model Script:
 
+### INSTALLATION:
+ Load at mission start in mission editor using Trigger> 4 Mission Start > Do Script File (this file)
+
 Improves splash damage modelling by pulling weapon warhead info (where available) and using this to create explosions (only way to apply damage) to units in more sensible range. 
