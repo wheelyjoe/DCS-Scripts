@@ -13,7 +13,7 @@ local SAMRangeLookupTable = { -- Ranges at which SAM sites are considered close 
     ["HQ-7_STR_SP"] = 10000,
 }
 local IADSEnable = true -- If true IADS script is active
-local IADSRadioDetection = true -- 1 = radio detection of ARM launch on, 0 = radio detection of ARM launch off
+local IADSRadioDetection = false -- 1 = radio detection of ARM launch on, 0 = radio detection of ARM launch off
 local IADSEWRARMDetection = true -- 1 = EWR detection of ARMs on, 0 = EWR detection of ARMs off
 local IADSSAMARMDetection = true -- 1 = SAM detectionf of ARMs on, 0 = SAM detection of ARMs off
 local EWRAssociationRange = 80000 --Range of an EWR in which SAMs are controlled
