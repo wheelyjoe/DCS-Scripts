@@ -569,13 +569,13 @@ if(IADSEnable) then
      {},
      timer.getTime()+11
    )
-   timer.scheduleFunction(function()
-      protectedCall(AWACSTrackFileBuild)
-      return timer.getTime()+2
-    end,
-     {},
-     timer.getTime()+12
-   )
+--   timer.scheduleFunction(function()
+--      protectedCall(AWACSTrackFileBuild)
+--      return timer.getTime()+2
+--    end,
+--    {},
+--     timer.getTime()+12
+--   )
      timer.scheduleFunction(function()
       protectedCall(monitorTracks)
       return timer.getTime()+2
