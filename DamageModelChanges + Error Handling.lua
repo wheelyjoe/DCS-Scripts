@@ -1,10 +1,13 @@
 --[[
 
-10/2/2020
+2 October 2020
 FrozenDroid:
 - Added error handling to all event handler and scheduled functions. Lua script errors can no longer bring the server down.
 - Added some extra checks to which weapons to handle, make sure they actually have a warhead (how come S-8KOM's don't have a warhead field...?)
-
+28 October 2020
+FrozenDroid: 
+- Uncommented error logging, actually made it an error log which shows a message box on error.
+- Fixed the too restrictive weapon filter (took out the HE warhead requirement)
 --]]
 
 
@@ -185,7 +188,7 @@ function onWpnEvent(event)
     if event.weapon then
       local ordnance = event.weapon
       local weapon_desc = ordnance:getDesc()
-      if (weapon_desc.category == 3 or weapon_desc.category == 2 or weapon_desc.category == 1) and not (weapon_desc.missileCategory == 1 or weapon_desc.missileCategory == 2 or weapon_desc.missileCategory == 3) and weapon_desc.warhead and weapon_desc.warhead.explosiveMass and weapon_desc.type == Weapon.WarheadType.HE and event.initiator then
+      if (weapon_desc.category == 3 or weapon_desc.category == 2 or weapon_desc.category == 1) and not (weapon_desc.missileCategory == 1 or weapon_desc.missileCategory == 2 or weapon_desc.missileCategory == 3) and weapon_desc.warhead and weapon_desc.warhead.explosiveMass and event.initiator then
         tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, exMass = weapon_desc.warhead.explosiveMass }
 --        env.info("Tracking " .. event.initiator:getName())
       end
@@ -200,7 +203,7 @@ end
 function protectedCall(...)
   local status, retval = pcall(...)
   if not status then
---    env.info("Splash damage script error... gracefully caught! " .. retval)
+    env.error("Splash damage script error... gracefully caught! " .. retval, true)
   end
 end
 
