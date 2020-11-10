@@ -12,8 +12,8 @@ FrozenDroid:
 
 
 local weaponDamageEnable = 1
-local killRangeMultiplier = 0.35
-local staticDamageRangeMultiplier = 0.035
+local killRangeMultiplier = 0.3
+local staticDamageRangeMultiplier = 0.1
 local stunRangeMultiplier = 1.0
 
 local suppressedGroups = {}
