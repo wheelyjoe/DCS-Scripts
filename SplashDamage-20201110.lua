@@ -123,7 +123,7 @@ local function track_wpns()
       --wpnData.lastIP = land.getIP(wpnData.pos, wpnData.dir, 50)
     else -- wpn no longer exists, must be dead.
 --      trigger.action.outText("Weapon impacted, mass of weapon warhead is " .. wpnData.exMass, 2)
-      local ip = land.getIP(wpnData.pos, wpnData.dir, 20)  -- terrain intersection point with weapon's nose.  Only search out 20 meters though.
+      local ip = land.getIP(wpnData.pos, wpnData.dir, 300)  -- terrain intersection point with weapon's nose.  Only search out 20 meters though.
       local impactPoint
       if not ip then -- use last calculated IP
         impactPoint = wpnData.pos
@@ -213,7 +213,7 @@ if (weaponDamageEnable == 1) then
       return timer.getTime() + 1
     end, 
     {}, 
-    timer.getTime() + 0.5
+    timer.getTime() + 0.1
   )
 
   timer.scheduleFunction(function() 
