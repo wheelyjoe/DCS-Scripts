@@ -36,6 +36,8 @@ Will update with more informaiton soon.
 Improves splash damage modelling by pulling weapon warhead info (where available) and using this to create explosions (only way to apply damage) to units in more sensible range. 
 
 
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
 Copyright (c) 2021 Wheelyjoe/A.G.P.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
