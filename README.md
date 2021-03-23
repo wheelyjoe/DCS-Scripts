@@ -35,5 +35,8 @@ Will update with more informaiton soon.
 
 Improves splash damage modelling by pulling weapon warhead info (where available) and using this to create explosions (only way to apply damage) to units in more sensible range. 
 
+## Weapon Damage Updates:
+
+Installed as above, but this time creates a correct size explosion on impact point. Weapons tracked and acted on are in the table at the top - incomplete table. 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------
