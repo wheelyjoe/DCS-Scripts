@@ -125,7 +125,6 @@ local function track_wpns()
 			if explTable[wpnData.name] then
 					--env.info("triggered explosion size: "..explTable[wpnData.name])
 					trigger.action.explosion(impactPoint, explTable[wpnData.name])
-					trigger.action.smoke(impactPoint, 0)
 			end
 			tracked_weapons[wpn_id_] = nil -- remove from tracked weapons first.         
 		end
