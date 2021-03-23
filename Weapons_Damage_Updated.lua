@@ -128,11 +128,9 @@ local function track_wpns()
 			end
 			--env.info("Weapon is gone") -- Got to here -- 
 			--trigger.action.outText("Weapon Type was: ".. wpnData.name, 20)
-			for i,v in pairs(explTable) do
-				if i == wpnData.name then
+			if explTable[wpnData.name] then
 					--env.info("triggered explosion size: "..explTable[wpnData.name])
 					trigger.action.explosion(impactPoint, explTable[wpnData.name])
-				end
 			end
 			tracked_weapons[wpn_id_] = nil -- remove from tracked weapons first.         
 		end
