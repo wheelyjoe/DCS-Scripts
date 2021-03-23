@@ -80,6 +80,8 @@ explTable = {
 	["Rb_15F"]	=	271,
 	["Rb_04E"]	=	407,
 	["Sea_Eagle"]	=	312,
+	["HEBOMB"]	=	40,
+	["HEBOMBD"]	=	40,
 }
 
 local weaponDamageEnable = 1
