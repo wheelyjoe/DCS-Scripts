@@ -145,7 +145,7 @@ function onWpnEvent(event)
     if event.weapon then
       local ordnance = event.weapon
       local weapon_desc = ordnance:getDesc()
-      if (weapon_desc.category != 0) and (weapon_desc.missileCategory != 1 or weapon_desc.missileCategory != 2) and (weapon.WarheadType == 2) and event.initiator then
+      if (weapon_desc.category ~= 0) and (weapon_desc.missileCategory ~= 1 or weapon_desc.missileCategory ~= 2) and (weapon.WarheadType == 2) and event.initiator then
         tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, name = ordnance:getTypeName() }
 --        env.info("Tracking " .. event.initiator:getName())
       end
