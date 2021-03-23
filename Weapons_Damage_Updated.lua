@@ -126,11 +126,11 @@ local function track_wpns()
 				impactPoint = ip
 	--        trigger.action.outText("Impact Point:\nPos X: " .. impactPoint.x .. "\nPos Z: " .. impactPoint.z, 2)
 			end
-			env.info("Weapon is gone") -- Got to here -- 
-			trigger.action.outText("Weapon Type was: ".. wpnData.name, 20)
+			--env.info("Weapon is gone") -- Got to here -- 
+			--trigger.action.outText("Weapon Type was: ".. wpnData.name, 20)
 			for i,v in pairs(explTable) do
 				if i == wpnData.name then
-					env.info("triggered explosion size: "..explTable[wpnData.name])
+					--env.info("triggered explosion size: "..explTable[wpnData.name])
 					trigger.action.explosion(impactPoint, explTable[wpnData.name])
 				end
 			end
@@ -145,9 +145,14 @@ function onWpnEvent(event)
     if event.weapon then
       local ordnance = event.weapon
       local weapon_desc = ordnance:getDesc()
-      if (weapon_desc.category ~= 0) and (weapon_desc.missileCategory ~= 1 or weapon_desc.missileCategory ~= 2) and (weapon.WarheadType == 2) and event.initiator then
-        tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, name = ordnance:getTypeName() }
---        env.info("Tracking " .. event.initiator:getName())
+      if (weapon_desc.category ~= 0) and (weapon_desc.warhead.type == 1) and event.initiator then
+		if (weapon_desc.category == 1) then
+			if (weapon_desc.MissileCategory ~= 1 and weapon_desc.MissileCategory ~= 2) then
+				tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, name = ordnance:getTypeName() }
+			end
+		else
+			tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, name = ordnance:getTypeName() }
+		end
       end
     end
   end
