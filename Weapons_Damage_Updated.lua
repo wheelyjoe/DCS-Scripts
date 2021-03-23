@@ -80,6 +80,7 @@ explTable = {
 
 local weaponDamageEnable = 1
 WpnHandler = {}
+tracked_weapons = {}
 
 local function getDistance(point1, point2)
   local x1 = point1.x
