@@ -1,5 +1,6 @@
---[[
 
+
+--[[
 2 October 2020
 FrozenDroid:
 - Added error handling to all event handler and scheduled functions. Lua script errors can no longer bring the server down.
@@ -81,6 +82,7 @@ explTable = {
 local weaponDamageEnable = 1
 WpnHandler = {}
 tracked_weapons = {}
+refreshRate = 0.1
 
 local function getDistance(point1, point2)
   local x1 = point1.x
@@ -109,16 +111,35 @@ local function getDistance3D(point1, point2)
   return distance
 end
 
+local function vec3Mag(speedVec)
+
+	mag = speedVec.x*speedVec.x + speedVec.y*speedVec.y+speedVec.z*speedVec.z
+	mag = math.sqrt(mag)
+	trigger.action.outText("X = " .. speedVec.x ..", y = " .. speedVec.y .. ", z = "..speedVec.z, 10)
+	trigger.action.outText("Speed = " .. mag, 1)
+	return mag
+
+end
+
+local function lookahead(speedVec)
+
+	speed = vec3Mag(speedVec)
+	dist = speed * refreshRate * 1.5 
+	return dist
+
+end
+
 local function track_wpns()
 --  env.info("Weapon Track Start")
 	for wpn_id_, wpnData in pairs(tracked_weapons) do   
-		if wpnData.wpn:isExist() then  -- just update position and direction.
+		if wpnData.wpn:isExist() then  -- just update speed, position and direction.
 			wpnData.pos = wpnData.wpn:getPosition().p
 			wpnData.dir = wpnData.wpn:getPosition().x
+			wpnData.speed = wpnData.wpn:getVelocity()
       --wpnData.lastIP = land.getIP(wpnData.pos, wpnData.dir, 50)
 		else -- wpn no longer exists, must be dead.
 --      trigger.action.outText("Weapon impacted, mass of weapon warhead is " .. wpnData.exMass, 2)
-			local ip = land.getIP(wpnData.pos, wpnData.dir, 20)  -- terrain intersection point with weapon's nose.  Only search out 20 meters though.
+			local ip = land.getIP(wpnData.pos, wpnData.dir, lookahead(wpnData.speed))  -- terrain intersection point with weapon's nose.  Only search out 20 meters though.
 			local impactPoint
 			if not ip then -- use last calculated IP
 				impactPoint = wpnData.pos
@@ -132,6 +153,7 @@ local function track_wpns()
 			if explTable[wpnData.name] then
 					--env.info("triggered explosion size: "..explTable[wpnData.name])
 					trigger.action.explosion(impactPoint, explTable[wpnData.name])
+					trigger.action.smoke(impactPoint, 0)
 			end
 			tracked_weapons[wpn_id_] = nil -- remove from tracked weapons first.         
 		end
@@ -147,10 +169,10 @@ function onWpnEvent(event)
       if (weapon_desc.category ~= 0) and event.initiator then
 		if (weapon_desc.category == 1) then
 			if (weapon_desc.MissileCategory ~= 1 and weapon_desc.MissileCategory ~= 2) then
-				tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, name = ordnance:getTypeName() }
+				tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, name = ordnance:getTypeName(), speed = ordnance:getVelocity() }
 			end
 		else
-			tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, name = ordnance:getTypeName() }
+			tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, name = ordnance:getTypeName(), speed = ordnance:getVelocity() }
 		end
       end
     end
@@ -171,10 +193,10 @@ end
 if (weaponDamageEnable == 1) then
   timer.scheduleFunction(function() 
       protectedCall(track_wpns)
-      return timer.getTime() + 0.1
+      return timer.getTime() + refreshRate
     end, 
     {}, 
-    timer.getTime() + 0.1
+    timer.getTime() + refreshRate
   )
   world.addEventHandler(WpnHandler)
 end
