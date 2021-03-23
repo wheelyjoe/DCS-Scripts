@@ -36,7 +36,7 @@ explTable = {
 	["GBU_31_V_4B"]	=	582,
 	["GBU_32_V_2B"]	=	582,
 	["GBU_38"]	=	118,
-	["AGM_62"]	=	630,
+	["AGM_62"]	=	153,
 	["GBU_24"]	=	582,
 	["X_23"]		=	111,
 	["X_23L"]		=	111,
@@ -131,6 +131,7 @@ local function track_wpns()
 			if explTable[wpnData.name] then
 					--env.info("triggered explosion size: "..explTable[wpnData.name])
 					trigger.action.explosion(impactPoint, explTable[wpnData.name])
+					trigger.action.smoke(impactPoint, 0)
 			end
 			tracked_weapons[wpn_id_] = nil -- remove from tracked weapons first.         
 		end
@@ -143,7 +144,7 @@ function onWpnEvent(event)
     if event.weapon then
       local ordnance = event.weapon
       local weapon_desc = ordnance:getDesc()
-      if (weapon_desc.category ~= 0) and (weapon_desc.warhead.type == 1) and event.initiator then
+      if (weapon_desc.category ~= 0) and event.initiator then
 		if (weapon_desc.category == 1) then
 			if (weapon_desc.MissileCategory ~= 1 and weapon_desc.MissileCategory ~= 2) then
 				tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, name = ordnance:getTypeName() }
