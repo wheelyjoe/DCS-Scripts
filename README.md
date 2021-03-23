@@ -37,6 +37,11 @@ Improves splash damage modelling by pulling weapon warhead info (where available
 
 ## Weapon Damage Updates:
 
-Installed as above, but this time creates a correct size explosion on impact point. Weapons tracked and acted on are in the table at the top - incomplete table. 
+It has been discovered that ED model explosions quite well, but have no idea what comp B, comp H6 and TNT equivalence is. 
 
+To this end, the new script causes a correct size explosion on impact point. It looks less visually jarring and should be more accurate damage wise and a LOT more efficient in terms of overhead. 
+
+Tracking is also more accurate so impacts should be long/short less. 
+
+I will say, it is less OP than the old version, and a little harder to see working, but it does, 
 ----------------------------------------------------------------------------------------------------------------------------------------------------
