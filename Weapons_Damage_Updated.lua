@@ -120,8 +120,8 @@ local function vec3Mag(speedVec)
 
 	mag = speedVec.x*speedVec.x + speedVec.y*speedVec.y+speedVec.z*speedVec.z
 	mag = math.sqrt(mag)
-	trigger.action.outText("X = " .. speedVec.x ..", y = " .. speedVec.y .. ", z = "..speedVec.z, 10)
-	trigger.action.outText("Speed = " .. mag, 1)
+	--trigger.action.outText("X = " .. speedVec.x ..", y = " .. speedVec.y .. ", z = "..speedVec.z, 10)
+	‐-trigger.action.outText("Speed = " .. mag, 1)
 	return mag
 
 end
@@ -158,7 +158,7 @@ local function track_wpns()
 			if explTable[wpnData.name] then
 					--env.info("triggered explosion size: "..explTable[wpnData.name])
 					trigger.action.explosion(impactPoint, explTable[wpnData.name])
-					trigger.action.smoke(impactPoint, 0)
+					--trigger.action.smoke(impactPoint, 0)
 			end
 			tracked_weapons[wpn_id_] = nil -- remove from tracked weapons first.         
 		end
