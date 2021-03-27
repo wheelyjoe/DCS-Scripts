@@ -117,7 +117,7 @@ local function vec3Mag(speedVec)
 	mag = speedVec.x*speedVec.x + speedVec.y*speedVec.y+speedVec.z*speedVec.z
 	mag = math.sqrt(mag)
 	--trigger.action.outText("X = " .. speedVec.x ..", y = " .. speedVec.y .. ", z = "..speedVec.z, 10)
-	‐-trigger.action.outText("Speed = " .. mag, 1)
+	--trigger.action.outText("Speed = " .. mag, 1)
 	return mag
 
 end
