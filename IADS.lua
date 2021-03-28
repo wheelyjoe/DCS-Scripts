@@ -7,10 +7,11 @@ local SAMRangeLookupTable = { -- Ranges at which SAM sites are considered close 
     ["Dog Ear radar"] = 26000,
     ["SA-11 Buk LN 9A310M1"] = 43000,
     ["Hawk tr"] = 60000,
-    ["Tor 9A331"] = 50000,    ["rapier_fsa_blindfire_radar"] = 6000,
+    ["Tor 9A331"] = 50000,
+    ["rapier_fsa_blindfire_radar"] = 6000,
     ["Patriot STR"] = 100000,
-    ["Roland ADS"] = 7500,
-    ["HQ-7_STR_SP"] = 10000,
+    ["Roland ADS"] = 10000,
+    ["HQ-7_STR_SP"] = 12500,
 }
 local IADSEnable = true -- If true IADS script is active
 local IADSRadioDetection = false -- 1 = radio detection of ARM launch on, 0 = radio detection of ARM launch off
