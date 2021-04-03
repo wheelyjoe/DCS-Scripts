@@ -80,9 +80,9 @@ explTable = {
 	["HEBOMBD"]	=	40,
 	["MK-81SE"]	=	60,
 	["AN-M57"]	=	56,
-	["AN-M64"]	=	136,
-	["AN-M65"]	=	325,
-	["AN-M66A2"]	=	508,
+	["AN-M64"]	=	180,
+	["AN-M65"]	=	295,
+	["AN-M66A2"]	=	536,
 }
 
 local weaponDamageEnable = 1
