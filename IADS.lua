@@ -77,12 +77,7 @@ local function rangeOfSAM(gp)
 end
 
 local function getSamByName(name)
-  for _, site in pairs(SAMSites) do
-    if site.Name == name then
-      return site
-    end
-  end
-  return nil
+	return SAMSites[name]
 end
 
 local function disableSAM(site)
