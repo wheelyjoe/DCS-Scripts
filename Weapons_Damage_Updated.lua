@@ -192,7 +192,7 @@ end
 local function protectedCall(...)
   local status, retval = pcall(...)
   if not status then
-    env.error("Splash damage script error... gracefully caught! " .. retval, true)
+    env.warning("Splash damage script error... gracefully caught! " .. retval, true)
   end
 end
 
