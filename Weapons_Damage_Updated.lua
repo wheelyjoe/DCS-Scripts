@@ -189,7 +189,7 @@ function WpnHandler:onEvent(event)
   protectedCall(onWpnEvent, event)
 end
 
-function protectedCall(...)
+local function protectedCall(...)
   local status, retval = pcall(...)
   if not status then
     env.error("Splash damage script error... gracefully caught! " .. retval, true)
