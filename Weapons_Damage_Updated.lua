@@ -83,12 +83,27 @@ explTable = {
 	["AN-M64"]	=	180,
 	["AN-M65"]	=	295,
 	["AN-M66A2"]	=	536,
+  ["HYDRA_70_M151"] = 2,
+}
+
+splash_damage_options = {
+  ["debug"] = true,
+  ["rockets_frag_infantry"] = false, --
+  ["rocket_blast_radius"] = 80,
+  ["blast_stun"] = true,
+  ["hit_stun"] = true
 }
 
 local weaponDamageEnable = 1
 WpnHandler = {}
 tracked_weapons = {}
 refreshRate = 0.1
+
+local function debugMsg(str)
+  if splash_damage_options.debug then
+    trigger.action.outText(str , 10)
+  end
+end
 
 local function getDistance(point1, point2)
   local x1 = point1.x
@@ -160,7 +175,11 @@ local function track_wpns()
 					--env.info("triggered explosion size: "..explTable[wpnData.name])
 					trigger.action.explosion(impactPoint, explTable[wpnData.name])
 					--trigger.action.smoke(impactPoint, 0)
+			else trigger.action.outText("Splash Damage script, not in DB:  "..tostring(wpnData.name), 2)
 			end
+			if wpnData.cat == Weapon.Category.ROCKET then
+        searchForUnits(impactPoint, splash_damage_options.rocket_blast_radius)
+      end
 			tracked_weapons[wpn_id_] = nil -- remove from tracked weapons first.         
 		end
 	end
@@ -175,13 +194,23 @@ function onWpnEvent(event)
       if (weapon_desc.category ~= 0) and event.initiator then
 		if (weapon_desc.category == 1) then
 			if (weapon_desc.MissileCategory ~= 1 and weapon_desc.MissileCategory ~= 2) then
-				tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, name = ordnance:getTypeName(), speed = ordnance:getVelocity() }
+				tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, name = ordnance:getTypeName(), speed = ordnance:getVelocity(), cat = ordnance:getCategory() }
 			end
 		else
-			tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, name = ordnance:getTypeName(), speed = ordnance:getVelocity() }
+			tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, name = ordnance:getTypeName(), speed = ordnance:getVelocity(), cat = ordnance:getCategory() }
 		end
       end
     end
+  end
+  
+  if event.id == world.event.S_EVENT_HIT then
+    --debugMsg("S_EVENT_HIT.")
+      local target = event.target
+      local target_type = target:getTypeName()
+      if target:getDesc().category == Unit.Category.GROUND_UNIT then --if ground unit
+        debugMsg("HIT ground unit with life: "..target:getLife())
+        suppressUnit(target, 5)
+      end
   end
 end
 
@@ -206,4 +235,74 @@ if (weaponDamageEnable == 1) then
     timer.getTime() + refreshRate
   )
   world.addEventHandler(WpnHandler)
+end
+
+  local SuppressedUnits = {} --Table to temporary store data for suppressed units
+  
+  local function SuppressionEnd(id)
+    id.ctrl:setOption(AI.Option.Ground.id.ROE , AI.Option.Ground.val.ROE.OPEN_FIRE)
+    SuppressedUnits[id.unitName] = nil
+    trigger.action.outText(id.unitName .. " suppression end", 2) --Info for debug
+  end
+ 
+ 
+function suppressUnit(tgt, severity)
+    debugMsg("supress severity="..severity)
+    local delay = math.random(1*severity, 5*severity) --Time in seconds the group of a hit unit will be unable to fire
+    
+    local id = {
+      unitName = tgt:getName(),
+      ctrl = tgt:getController()
+    }
+    
+    if SuppressedUnits[id.unitName] == nil then --If group is currently not suppressed, add to table.
+      SuppressedUnits[id.unitName] = {
+        SuppressionEndTime = timer.getTime() + delay,
+        SuppressionEndFunc = nil
+      }
+      SuppressedUnits[id.unitName].SuppressionEndFunc = timer.scheduleFunction(SuppressionEnd, id, SuppressedUnits[id.unitName].SuppressionEndTime) --Schedule the SuppressionEnd() function  
+    else  --If group is already suppressed, update table and increase delay
+      local timeleft = SuppressedUnits[id.unitName].SuppressionEndTime - timer.getTime()  --Get how long to the end of the suppression
+      local addDelay = (delay / timeleft) * delay --The longer the suppression is going to last, the smaller it is going to be increased by additional hits
+      if timeleft < delay then  --But if the time left is shorter than a complete delay, add another full delay
+        addDelay = delay
+      end
+      SuppressedUnits[id.unitName].SuppressionEndTime = SuppressedUnits[id.unitName].SuppressionEndTime + addDelay
+      timer.setFunctionTime(SuppressedUnits[id.unitName].SuppressionEndFunc, SuppressedUnits[id.unitName].SuppressionEndTime) --Update the execution time of the existing instance of the SuppressionEnd() scheduled function
+    end
+    
+    id.ctrl:setOption(AI.Option.Ground.id.ROE , AI.Option.Ground.val.ROE.WEAPON_HOLD) --Set ROE weapons hold to initate suppression
+    trigger.action.outText(id.unitName .. " suppressed until " .. SuppressedUnits[id.unitName].SuppressionEndTime, 2)  --Info for debug
+  end
+
+
+
+
+
+function searchForUnits(_point, _radius)
+ debugMsg("search for units at point: "..tostring(_point))
+ local foundUnits = {}
+ local volS = {
+   id = world.VolumeType.SPHERE,
+   params = {
+     point = _point,
+     radius = _radius
+   }
+ }
+ 
+ local ifFound = function(foundItem, val)
+    foundUnits[#foundUnits + 1] = foundItem:getName()
+    --debugMsg("found unit: "..mist.utils.tableShow(foundItem:getDesc()))
+    if foundItem:hasAttribute("Infantry") and splash_damage_options.rockets_frag_infantry == true then
+      --debugMsg("found infantry unit: "..foundItem:getName())
+      trigger.action.explosion(foundItem:getPoint(), 1)  --kill infantry
+    end
+    if foundItem:getDesc().category == Unit.Category.GROUND_UNIT then --if ground unit
+        suppressUnit(foundItem, 1)
+    end
+
+    return true
+ end
+ 
+ world.searchObjects(Object.Category.UNIT, volS, ifFound)
 end
