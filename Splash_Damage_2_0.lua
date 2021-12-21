@@ -27,7 +27,7 @@ spencershepard (GRIMM):
 ----[[ ##### SCRIPT CONFIGURATION ##### ]]----
 
 splash_damage_options = {
-  ["static_damage_boost"] = 2000, --apply extra damage to static objects with wave explosions
+  ["static_damage_boost"] = 2000, --apply extra damage to Unit.Category.STRUCTUREs with wave explosions
   ["wave_explosions"] = true, --secondary explosions on top of game objects, radiating outward from the impact point and scaled based on size of object and distance from weapon impact point
   ["larger_explosions"] = true, --secondary explosions on top of weapon impact points, dictated by the values in the explTable
   ["damage_model"] = true, --allow blast wave to affect ground unit movement and weapons
