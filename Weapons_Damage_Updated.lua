@@ -1,5 +1,5 @@
 
-assert(loadfile("C:\\Users\\spenc\\OneDrive\\Documents\\Eclipe_LDT\\dcs splash damage\\src\\mist.lua"))()
+--assert(loadfile("C:\\Users\\spenc\\OneDrive\\Documents\\Eclipe_LDT\\dcs splash damage\\src\\mist.lua"))()
 --[[
 2 October 2020
 FrozenDroid:
@@ -11,8 +11,22 @@ FrozenDroid:
 - Fixed the too restrictive weapon filter (took out the HE warhead requirement)
 18 December 2021
 spencershepard (GRIMM):
-- added suppression features from Suppression Script by Marc "MBot" Marbot v20Dec2013
+ 
 --]]
+
+splash_damage_options = {
+  ["cascading_explosions"] = true, --secondary explosions on top of game objects within a blast radius
+  ["larger_explosions"] = true, --secondary explosions on top of weapon impact points, dictated by the values in the explTable
+  ["damage_model"] = true, --leave off for now
+  ["blast_search_radius"] = 100, --this is the max size of any blast radius, since we will only find objects within this zone
+  ["cascade_damage_threshold"] = 0.1, --if the calculated blast damage doesn't exeed this value, there will be no secondary explosion damage on the unit.  If this value is too small, the appearance of explosions far outside of an expected radius looks incorrect.
+  ["game_messages"] = true, 
+  ["blast_stun"] = false, --not implemented
+  ["unit_disabled_health"] = 25, --if health is below this value after our explosions, disable its movement 
+  ["unit_cant_fire_health"] = 50, --if health is below this value after our explosions, set ROE to HOLD to simulate damage weapon systems
+  ["infantry_cant_fire_health"] = 90,  --if health is below this value after our explosions, set ROE to HOLD to simulate severe injury
+  ["debug"] = false,
+}
 
 explTable = {
   ["FAB_100"] = 45,
@@ -88,21 +102,6 @@ explTable = {
   ["AN-M66A2"]  = 536,
   ["HYDRA_70_M151"] = 2,
   ["HYDRA_70_MK5"] = 2,
-}
-
-splash_damage_options = {
-  ["cascading_explosions"] = true,
-  ["larger_explosions"] = true,
-  ["damage_model"] = true, 
-  ["rockets_frag_infantry"] = false,
-  ["rocket_blast_radius"] = 10,
-  ["blast_stun"] = false,
-  ["cascade_statics"] = true,
-  ["game_messages"] = true, 
-  ["unit_disabled_health"] = 90,
-  ["unit_cant_fire_health"] = 95,
-  ["infantry_cant_fire_health"] = 99,
-  ["debug"] = false,
 }
 
 local weaponDamageEnable = 1
@@ -188,15 +187,14 @@ local function track_wpns()
       end
       --env.info("Weapon is gone") -- Got to here -- 
       --trigger.action.outText("Weapon Type was: ".. wpnData.name, 20)
-      if explTable[wpnData.name] and splash_damage_options.larger_explosions == true then
-          --env.info("triggered explosion size: "..explTable[wpnData.name])
-          trigger.action.explosion(impactPoint, explTable[wpnData.name])
+      if splash_damage_options.larger_explosions == true then
+          --env.info("triggered explosion size: "..getWeaponExplosive(wpnData.name))
+          trigger.action.explosion(impactPoint, getWeaponExplosive(wpnData.name))
           --trigger.action.smoke(impactPoint, 0)
-      else trigger.action.outText("Splash Damage script, not in DB:  "..tostring(wpnData.name), 2)
       end
-      if wpnData.cat == Weapon.Category.ROCKET then
-        rocketBlast(impactPoint, splash_damage_options.rocket_blast_radius, wpnData.ordnance)
-      end
+      --if wpnData.cat == Weapon.Category.ROCKET then
+        blastDamage(impactPoint, splash_damage_options.blast_search_radius, wpnData.ordnance, getWeaponExplosive(wpnData.name))
+      --end
       tracked_weapons[wpn_id_] = nil -- remove from tracked weapons first.         
     end
   end
@@ -208,14 +206,20 @@ function onWpnEvent(event)
     if event.weapon then
       local ordnance = event.weapon
       local weapon_desc = ordnance:getDesc()
-      if (weapon_desc.category ~= 0) and event.initiator then
-    if (weapon_desc.category == 1) then
-      if (weapon_desc.MissileCategory ~= 1 and weapon_desc.MissileCategory ~= 2) then
-        tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, name = ordnance:getTypeName(), speed = ordnance:getVelocity(), cat = ordnance:getCategory() }
+      if explTable[ordnance:getTypeName()] then
+        --trigger.action.outText(ordnance:getTypeName().." found.", 10)
+      else 
+        trigger.action.outText(ordnance:getTypeName().." missing from Splash Damage script", 10)
+        env.info(ordnance:getTypeName().." missing from Splash Damage script")
       end
-    else
-      tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, name = ordnance:getTypeName(), speed = ordnance:getVelocity(), cat = ordnance:getCategory() }
-    end
+      if (weapon_desc.category ~= 0) and event.initiator then
+        if (weapon_desc.category == 1) then
+          if (weapon_desc.MissileCategory ~= 1 and weapon_desc.MissileCategory ~= 2) then
+            tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, name = ordnance:getTypeName(), speed = ordnance:getVelocity(), cat = ordnance:getCategory() }
+          end
+        else
+          tracked_weapons[event.weapon.id_] = { wpn = ordnance, init = event.initiator:getName(), pos = ordnance:getPoint(), dir = ordnance:getPosition().x, name = ordnance:getTypeName(), speed = ordnance:getVelocity(), cat = ordnance:getCategory() }
+        end
       end
     end
   end
@@ -255,49 +259,8 @@ end
     debugMsg(id.unitName .. " suppression end")
   end
  
- 
-function suppressUnit(tgt, severity, weapon)
-    if weapon ~= nil then
-       if weapon:getDesc().category == Weapon.Category.SHELL then
-         debugMsg("weapon is a shell")
-         return --implement a non-stacking suppression later
-       end
-    end
-    local delay = math.random(2*severity, 5*severity) --Time in seconds the group of a hit unit will be unable to fire
-    
-    local id = {
-      unitName = tgt:getName(),
-      ctrl = tgt:getController()
-      
-    }
-    
-    if SuppressedUnits[id.unitName] == nil then --If group is currently not suppressed, add to table.
-      SuppressedUnits[id.unitName] = {
-        SuppressionEndTime = timer.getTime() + delay,
-        SuppressionEndFunc = nil
-      }
-      SuppressedUnits[id.unitName].SuppressionEndFunc = timer.scheduleFunction(SuppressionEnd, id, SuppressedUnits[id.unitName].SuppressionEndTime) --Schedule the SuppressionEnd() function  
-    else  --If group is already suppressed, update table and increase delay
-      local timeleft = SuppressedUnits[id.unitName].SuppressionEndTime - timer.getTime()  --Get how long to the end of the suppression
-      local addDelay = (delay / timeleft) * delay --The longer the suppression is going to last, the smaller it is going to be increased by additional hits
-      if timeleft < delay then  --But if the time left is shorter than a complete delay, add another full delay
-        addDelay = delay
-      end
-      SuppressedUnits[id.unitName].SuppressionEndTime = SuppressedUnits[id.unitName].SuppressionEndTime + addDelay
-      timer.setFunctionTime(SuppressedUnits[id.unitName].SuppressionEndFunc, SuppressedUnits[id.unitName].SuppressionEndTime) --Update the execution time of the existing instance of the SuppressionEnd() scheduled function
-    end
-    
-    id.ctrl:setOption(AI.Option.Ground.id.ROE , AI.Option.Ground.val.ROE.WEAPON_HOLD) --Set ROE weapons hold to initate suppression
-    id.ctrl:setOnOff(false) 
-    gameMsg(tgt:getTypeName().." suppressed for "..delay.."s")
-    --debugMsg(id.unitName .. " suppressed until " .. SuppressedUnits[id.unitName].SuppressionEndTime)
-  end
 
-
-
-
-
-function rocketBlast(_point, _radius, weapon)
+function blastDamage(_point, _radius, weapon, power)
  local foundUnits = {}
  local volS = {
    id = world.VolumeType.SPHERE,
@@ -307,28 +270,59 @@ function rocketBlast(_point, _radius, weapon)
    }
  }
  
- local ifFound = function(foundUnit, val)
+  local ifFound = function(foundUnit, val)
     if foundUnit:getDesc().category == Unit.Category.GROUND_UNIT then
       foundUnits[#foundUnits + 1] = foundUnit
     end
-    --debugMsg("found unit: "..foundUnit:getTypeName())
-    if foundUnit:hasAttribute("Infantry") and splash_damage_options.rockets_frag_infantry == true then
-      --debugMsg("found infantry unit: "..foundUnit:getName())
-      trigger.action.explosion(foundUnit:getPoint(), 1)  --kill infantry in blast radius
-    end
-    if foundUnit:getDesc().category == Unit.Category.GROUND_UNIT and splash_damage_options.blast_stun == true then --if ground unit
-      suppressUnit(foundUnit, 2, weapon)
+    if foundUnit:getDesc().category == Unit.Category.GROUND_UNIT then --if ground unit
+      if splash_damage_options.blast_stun == true then
+        --suppressUnit(foundUnit, 2, weapon)
+      end
     end
     if splash_damage_options.cascading_explosions == true then
-      local timing = getDistance(_point, foundUnit:getPoint())/300
-      local id = timer.scheduleFunction(explodeUnit, foundUnit, timer.getTime() + timing)
+      local obj = foundUnit
+      local obj_location = obj:getPoint()
+      local distance = getDistance(_point, obj_location)
+      local timing = distance/500      
+      if obj:isExist() then
+        
+        if tableHasKey(obj:getDesc(), "box") then
+          local length = (obj:getDesc().box.max.x + math.abs(obj:getDesc().box.min.x))
+          local height = (obj:getDesc().box.max.y + math.abs(obj:getDesc().box.min.y))
+          local depth = (obj:getDesc().box.max.z + math.abs(obj:getDesc().box.min.z))
+          local _length = length
+          local _depth = depth
+          if depth > length then 
+            _length = depth 
+            _depth = length
+          end
+          local surface_distance = distance - _depth/2 
+          local scaled_power_factor = 0.006 * power + 1 --this could be reduced into the calc on the next line
+          local intensity = (power * scaled_power_factor) / (4 * 3.14 * surface_distance * surface_distance )
+
+            local surface_area = _length * height --Ideally we should roughly calculate the surface area facing the blast point, but we'll just find the largest side of the object for now
+            local damage_for_surface = intensity * surface_area    
+            --debugMsg(obj:getTypeName().." sa:"..surface_area.." distance:"..surface_distance.." dfs:"..damage_for_surface)
+            if damage_for_surface > splash_damage_options.cascade_damage_threshold then
+              local id = timer.scheduleFunction(explodeObject, {obj_location, distance, damage_for_surface}, timer.getTime() + timing)
+            end
+
+          
+        else --debugMsg(obj:getTypeName().." object does not have box property")
+      end
+        
     end
-    return true
+    
+  end
+    
+ return true
  end
  
  world.searchObjects(Object.Category.UNIT, volS, ifFound)
  world.searchObjects(Object.Category.STATIC, volS, ifFound)
  world.searchObjects(Object.Category.SCENERY, volS, ifFound)
+ world.searchObjects(Object.Category.CARGO, volS, ifFound)
+ --world.searchObjects(Object.Category.BASE, volS, ifFound)
  
  if splash_damage_options.damage_model == true then --if ground unit
    local id = timer.scheduleFunction(damageUnits, foundUnits, timer.getTime() + 1) --allow some time for the game to adjust health levels before running our function  --do we need to create new instances of this?
@@ -344,23 +338,25 @@ function damageUnits(units)
   do
     --debugMsg("unit table: "..mist.utils.tableShow(unit))
     if unit:isExist() then  --if units are not already dead
-      local health = (unit:getLife() / unit:getLife0()) * 100
-      debugMsg(unit:getTypeName().." health %"..health) 
-      local unit_controller = unit:getController()
-      if unit:hasAttribute("Infantry") then
+      local health = (unit:getLife() / unit:getDesc().life) * 100 
+      --debugMsg(unit:getTypeName().." health %"..health) 
+      if unit:hasAttribute("Infantry") and health > 0 then
         if health <= splash_damage_options.infantry_cant_fire_health then
           --debugMsg("infantry cant fire")
-          unit_controller:setOption(AI.Option.Ground.id.ROE , AI.Option.Ground.val.ROE.WEAPON_HOLD)
+          unit:getController():setOption(AI.Option.Ground.id.ROE , AI.Option.Ground.val.ROE.WEAPON_HOLD)
         end
       end
-      if unit:getDesc().category == Unit.Category.GROUND_UNIT then
+      if unit:getDesc().category == Unit.Category.GROUND_UNIT and health > 0 then
         if health <= splash_damage_options.unit_cant_fire_health then
-          unit_controller:setOption(AI.Option.Ground.id.ROE , AI.Option.Ground.val.ROE.WEAPON_HOLD)
-          gameMsg(unit:getTypeName().." weapons disabled")
+          unit:getController():setOption(AI.Option.Ground.id.ROE , AI.Option.Ground.val.ROE.WEAPON_HOLD)
+          --gameMsg(unit:getTypeName().." weapons disabled")
         end
         if health <= splash_damage_options.unit_disabled_health then
-          unit_controller:setOnOff(false) 
-          gameMsg(unit:getTypeName().." engine disabled")
+
+          unit:getController():setTask({id = 'Hold', params = { }} )
+          --unit:getController():setOption(8, 0) --disable disperse on attack (seems to override setOnOff)
+          unit:getController():setOnOff(false) 
+          gameMsg(unit:getTypeName().." disabled")
         end
       end
       
@@ -374,5 +370,25 @@ function explodeUnit(unit)
   if unit:isExist() then
     trigger.action.explosion(unit:getPoint(), 1) 
   end
+end
+
+function explodeObject(table)
+  local point = table[1]
+  local distance = table[2]
+  local power = table[3]
+  trigger.action.explosion(point, power) 
+end
+
+function getWeaponExplosive(name)
+  if explTable[name] then
+    return explTable[name]
+  else
+    return 2
+  end
+end
+
+
+function tableHasKey(table,key)
+    return table[key] ~= nil
 end
 
