@@ -28,20 +28,26 @@ Will update with more informaiton soon.
  
  Don't mix SAM types
 
-## Damage Model Script:
 
-### INSTALLATION:
- Load at mission start in mission editor using Trigger> 4 Mission Start > Do Script File (this file)
+## Splash Damage 2.0:
 
-Improves splash damage modelling by pulling weapon warhead info (where available) and using this to create explosions (only way to apply damage) to units in more sensible range. 
+ -Adds a blast wave effect which adds timed and scaled secondary explosions on top of game objects
+ 
+ -Object geometry within blast wave changes damage intensity
+ 
+ -Additional damage boost for structures since they are hard to kill, even if very close to large explosions.
+ 
+ -Damage model for ground units that will disable their weapons and ability to move with partial damage before they are killed.
+ 
+ -New options table 
 
-## Weapon Damage Updates:
+ 
+ If you see a message like "[weapon] is missing from Splash Damage script", please post your DCS.log (C:\Users\you\Saved Games\DCS\Logs) so the missing weapon can be added.
+ 
+ ### INSTALLATION:
+ Load at mission start in mission editor using Trigger> 4 Mission Start > Do Script File (script file) 
+ 
+ ![alt text](https://github.com/spencershepard/DCS-Scripts/blob/develop/splash%20damage%202.gif?raw=true)
+ 
 
-It has been discovered that ED model explosions quite well, but have no idea what comp B, comp H6 and TNT equivalence is. 
-
-To this end, the new script causes a correct size explosion on impact point. It looks less visually jarring and should be more accurate damage wise and a LOT more efficient in terms of overhead. 
-
-Tracking is also more accurate so impacts should be long/short less. 
-
-I will say, it is less OP than the old version, and a little harder to see working, but it does, 
 ----------------------------------------------------------------------------------------------------------------------------------------------------
