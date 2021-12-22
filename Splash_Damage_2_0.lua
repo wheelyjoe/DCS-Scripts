@@ -274,7 +274,7 @@ function getWeaponExplosive(name)
   if explTable[name] then
     return explTable[name]
   else
-    return 2
+    return 0
   end
 end
 
