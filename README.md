@@ -29,9 +29,6 @@ Will update with more informaiton soon.
  Don't mix SAM types
 
 
-### INSTALLATION:
- Load at mission start in mission editor using Trigger> 4 Mission Start > Do Script File (script file) 
-
 ## Splash Damage 2.0:
 
  -Adds a blast wave effect which adds timed and scaled secondary explosions on top of game objects
@@ -47,6 +44,10 @@ Will update with more informaiton soon.
  
  If you see a message like "[weapon] is missing from Splash Damage script", please post your DCS.log (C:\Users\you\Saved Games\DCS\Logs) so the missing weapon can be added.
  
+ ### INSTALLATION:
+ Load at mission start in mission editor using Trigger> 4 Mission Start > Do Script File (script file) 
+ 
  ![alt text](https://github.com/spencershepard/DCS-Scripts/blob/develop/splash%20damage%202.gif?raw=true)
+ 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------
