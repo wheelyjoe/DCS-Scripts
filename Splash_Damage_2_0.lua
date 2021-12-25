@@ -39,6 +39,7 @@ splash_damage_options = {
   ["unit_cant_fire_health"] = 50, --if health is below this value after our explosions, set ROE to HOLD to simulate damage weapon systems
   ["infantry_cant_fire_health"] = 90,  --if health is below this value after our explosions, set ROE to HOLD to simulate severe injury
   ["debug"] = false,  --enable debugging messages
+  ["weapon_missing_message"] = true, --false disables messages alerting you to weapons missing from the explTable
 }
 
 local script_enable = 1
@@ -118,9 +119,11 @@ explTable = {
   ["AN-M64"]  = 180,
   ["AN-M65"]  = 295,
   ["AN-M66A2"]  = 536,
-  ["HYDRA_70_M151"] = 3,
-  ["HYDRA_70_MK5"] = 3,
+  ["HYDRA_70_M151"] = 4,
+  ["HYDRA_70_MK5"] = 4,
+  ["Vikhr_M"] = 11,
   --agm-65??
+  
 }
 
 
@@ -232,8 +235,10 @@ function onWpnEvent(event)
       if explTable[ordnance:getTypeName()] then
         --trigger.action.outText(ordnance:getTypeName().." found.", 10)
       else 
-        trigger.action.outText(ordnance:getTypeName().." missing from Splash Damage script", 10)
         env.info(ordnance:getTypeName().." missing from Splash Damage script")
+        if splash_damage_options.weapon_missing_message == false then
+          trigger.action.outText(ordnance:getTypeName().." missing from Splash Damage script", 10)
+        end
       end
       if (weapon_desc.category ~= 0) and event.initiator then
         if (weapon_desc.category == 1) then
@@ -359,7 +364,7 @@ function blastWave(_point, _radius, weapon, power)
           if damage_for_surface > splash_damage_options.cascade_damage_threshold then
             local explosion_size = damage_for_surface
             if obj:getDesc().category == Unit.Category.STRUCTURE then
-              explosion_size = intensity * splash_damage_options.static_damage_boost --apply an extra damage boost for static objects
+              explosion_size = intensity * splash_damage_options.static_damage_boost --apply an extra damage boost for static objects. should we factor in surface_area?
               --debugMsg("static obj :"..obj:getTypeName())
             end
             if explosion_size > power then explosion_size = power end --secondary explosions should not be larger than the explosion that created it
@@ -391,6 +396,7 @@ end
 
 
 if (script_enable == 1) then
+  gameMsg("SPLASH DAMAGE 2 SCRIPT RUNNING")
   timer.scheduleFunction(function() 
       protectedCall(track_wpns)
       return timer.getTime() + refreshRate
