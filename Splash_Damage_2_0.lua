@@ -30,7 +30,7 @@ splash_damage_options = {
   ["static_damage_boost"] = 2000, --apply extra damage to Unit.Category.STRUCTUREs with wave explosions
   ["wave_explosions"] = true, --secondary explosions on top of game objects, radiating outward from the impact point and scaled based on size of object and distance from weapon impact point
   ["larger_explosions"] = true, --secondary explosions on top of weapon impact points, dictated by the values in the explTable
-  ["damage_model"] = true, --allow blast wave to affect ground unit movement and weapons
+  ["damage_model"] = false, --allow blast wave to affect ground unit movement and weapons
   ["blast_search_radius"] = 100, --this is the max size of any blast wave radius, since we will only find objects within this zone
   ["cascade_damage_threshold"] = 0.1, --if the calculated blast damage doesn't exeed this value, there will be no secondary explosion damage on the unit.  If this value is too small, the appearance of explosions far outside of an expected radius looks incorrect.
   ["game_messages"] = true, --enable some messages on screen
@@ -39,7 +39,7 @@ splash_damage_options = {
   ["unit_cant_fire_health"] = 50, --if health is below this value after our explosions, set ROE to HOLD to simulate damage weapon systems
   ["infantry_cant_fire_health"] = 90,  --if health is below this value after our explosions, set ROE to HOLD to simulate severe injury
   ["debug"] = false,  --enable debugging messages
-  ["weapon_missing_message"] = true, --false disables messages alerting you to weapons missing from the explTable
+  ["weapon_missing_message"] = false, --false disables messages alerting you to weapons missing from the explTable
 }
 
 local script_enable = 1
@@ -236,7 +236,7 @@ function onWpnEvent(event)
         --trigger.action.outText(ordnance:getTypeName().." found.", 10)
       else 
         env.info(ordnance:getTypeName().." missing from Splash Damage script")
-        if splash_damage_options.weapon_missing_message == false then
+        if splash_damage_options.weapon_missing_message == true then
           trigger.action.outText(ordnance:getTypeName().." missing from Splash Damage script", 10)
         end
       end
