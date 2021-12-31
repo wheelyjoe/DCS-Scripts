@@ -122,6 +122,41 @@ explTable = {
   ["HYDRA_70_M151"] = 4,
   ["HYDRA_70_MK5"] = 4,
   ["Vikhr_M"] = 11,
+  ["British_GP_250LB_Bomb_Mk1"] = 100,           --("250 lb GP Mk.I")
+  ["British_GP_250LB_Bomb_Mk4"] = 100,           --("250 lb GP Mk.IV")
+  ["British_GP_250LB_Bomb_Mk5"] = 100,           --("250 lb GP Mk.V")
+  ["British_GP_500LB_Bomb_Mk1"] = 213,           --("500 lb GP Mk.I")
+  ["British_GP_500LB_Bomb_Mk4"] = 213,           --("500 lb GP Mk.IV")
+  ["British_GP_500LB_Bomb_Mk4_Short"] = 213,     --("500 lb GP Short tail")
+  ["British_GP_500LB_Bomb_Mk5"] = 213,           --("500 lb GP Mk.V")
+  ["British_MC_250LB_Bomb_Mk1"] = 100,           --("250 lb MC Mk.I")
+  ["British_MC_250LB_Bomb_Mk2"] = 100,           --("250 lb MC Mk.II")
+  ["British_MC_500LB_Bomb_Mk1_Short"] = 213,     --("500 lb MC Short tail")
+  ["British_MC_500LB_Bomb_Mk2"] = 213,           --("500 lb MC Mk.II")
+  ["British_SAP_250LB_Bomb_Mk5"] = 100,          --("250 lb S.A.P.")
+  ["British_SAP_500LB_Bomb_Mk5"] = 213,          --("500 lb S.A.P.")
+  ["British_AP_25LBNo1_3INCHNo1"] = 4,           --("RP-3 25lb AP Mk.I")
+  ["British_HE_60LBSAPNo2_3INCHNo1"] = 4,        --("RP-3 60lb SAP No2 Mk.I")
+  ["British_HE_60LBFNo1_3INCHNo1"] = 4,          --("RP-3 60lb F No1 Mk.I")
+  ["WGr21"] = 4,                                 --("Werfer-Granate 21 - 21 cm UnGd air-to-air rocket")
+  ["3xM8_ROCKETS_IN_TUBES"] = 4,                 --("4.5 inch M8 UnGd Rocket")
+  ["AN_M30A1"] = 45,                             --("AN-M30A1 - 100lb GP Bomb LD")
+  ["AN_M57"] = 100,                              --("AN-M57 - 250lb GP Bomb LD")
+  ["AN_M65"] = 400,                              --("AN-M65 - 1000lb GP Bomb LD")
+  ["AN_M66"] = 800,                              --("AN-M66 - 2000lb GP Bomb LD")
+  ["SC_50"] = 20,                                --("SC 50 - 50kg GP Bomb LD")
+  ["ER_4_SC50"] = 20,                            --("4 x SC 50 - 50kg GP Bomb LD")
+  ["SC_250_T1_L2"] = 100,                        --("SC 250 Type 1 L2 - 250kg GP Bomb LD")
+  ["SC_501_SC250"] = 100,                        --("SC 250 Type 3 J - 250kg GP Bomb LD")
+  ["Schloss500XIIC1_SC_250_T3_J"] = 100,         --("SC 250 Type 3 J - 250kg GP Bomb LD")
+  ["SC_501_SC500"] = 213,                        --("SC 500 J - 500kg GP Bomb LD")
+  ["SC_500_L2"] = 213,                           --("SC 500 L2 - 500kg GP Bomb LD")
+  ["SD_250_Stg"] = 100,                          --("SD 250 Stg - 250kg GP Bomb LD")
+  ["SD_500_A"] = 213,                            --("SD 500 A - 500kg GP Bomb LD")
+  ["AB_250_2_SD_2"] = 100,                       --("AB 250-2 - 144 x SD-2, 250kg CBU with HE submunitions")
+  ["AB_250_2_SD_10A"] = 100,                     --("AB 250-2 - 17 x SD-10A, 250kg CBU with 10kg Frag/HE submunitions")
+  ["AB_500_1_SD_10A"] = 213,                     --("AB 500-1 - 34 x SD-10A, 500kg CBU with 10kg Frag/HE submunitions")
+  --["LTF_5B"] = 100,                                   --("LTF 5b Aerial Torpedo")
   --agm-65??
   
 }
@@ -232,12 +267,18 @@ function onWpnEvent(event)
     if event.weapon then
       local ordnance = event.weapon
       local weapon_desc = ordnance:getDesc()
+      if string.find(ordnance:getTypeName(), "weapons.shells") then 
+        debugMsg("event shot, but not tracking: "..ordnance:getTypeName())
+        return  --we wont track these types of weapons, so exit here
+      end
+        
       if explTable[ordnance:getTypeName()] then
         --trigger.action.outText(ordnance:getTypeName().." found.", 10)
       else 
         env.info(ordnance:getTypeName().." missing from Splash Damage script")
         if splash_damage_options.weapon_missing_message == true then
           trigger.action.outText(ordnance:getTypeName().." missing from Splash Damage script", 10)
+          debugMsg("desc: "..mist.utils.tableShow(weapon_desc))
         end
       end
       if (weapon_desc.category ~= 0) and event.initiator then
@@ -283,7 +324,7 @@ function getWeaponExplosive(name)
   end
 end
 
-
+--controller is only at group level for ground units.  we should itterate over the group and only apply effects if health thresholds are met by all units in the group
 function modelUnitDamage(units)
   --debugMsg("units table: "..mist.utils.tableShow(units))
   for i, unit in ipairs(units)
