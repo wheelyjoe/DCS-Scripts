@@ -24,9 +24,9 @@ Will update with more informaiton soon.
  TORs remain on
  
 ### Mission Designer tips:
- Don't mix EWR and SAM sites
+ Don't mix EWR and SAM sites in one group
  
- Don't mix SAM types
+ Don't mix SAM types in one group
 
 ## Damage Model Script:
 
