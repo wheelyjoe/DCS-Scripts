@@ -14,7 +14,6 @@ function SwapCountry.isUntInZone(gp, zone)
 	return utils.pointInZone(gpPoint, zone)	
 end
 
-
 function SwapCountry.swapGp(gp, endCountry)
 	local gpTable = utils.gpInfoMiz(gp)
 	if gpTable ~= nil then
@@ -82,27 +81,6 @@ function SwapCountry.swapInRangeOfUnit(untName, range, ctgry)
 		end
 	end	
 end
-
-function SwapCountry.changeTaskForGp(gpName, newTask)
-
-	local gp = Group.getByName(gpName)
-	local gpCtrlr = gp:getController()
-	gpCtrlr:pushTask(newTask)
-
-end
-
-function SwapCountry.newTaskAttackGp(atkName, tgtName)
-	local tgtGp = Group.getByName(tgtName)
-	local taskTable = {
-	
-		id = 'AttackGroup', 
-		params = {		
-			groupId = tgtGp:getID(),		
-		}	
-	}
-	SwapCountry.changeTaskForGp(atkName, taskTable)
-end
-
 
 return SwapCountry
 

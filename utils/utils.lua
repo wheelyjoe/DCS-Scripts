@@ -1,5 +1,12 @@
 local utils = {}
 
+function utils.protectedCall(...)
+  local status, retval = pcall(...)
+  if not status then
+    env.warning("test script error caught " .. retval, true)
+  end
+end
+
 function utils.gpInfoMiz(gp)
 	local gpName = gp:getName()
 	local coa = gp:getCoalition()
