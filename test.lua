@@ -17,7 +17,7 @@ local function trackPlanes()
 		for _, unt in pairs(gp:getUnits()) do
 			if swapSides.isUntInZone(unt, TRNC_all) then		
 				swapSides.swapInRangeOfUnit(unt:getName(), 5000)
-				swapSides.swapInRangeOfUnit(unt:getName(), 20000, Unit.Category.AIRPLANE)
+				swapSides.swapInRangeOfUnit(unt:getName(), 250000, Unit.Category.AIRPLANE)
 			end
 		end
 	end

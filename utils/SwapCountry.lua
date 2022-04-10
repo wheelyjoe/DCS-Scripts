@@ -3,19 +3,6 @@ package.path = package.path..";"..lfs.writedir().."/Scripts/?.lua"
 local utils = require 'DCS-Scripts.utils.utils'
 
 local foundUnits = {}
-local Zone_TRNC_1 = {
-	p1 = {x = 00053152, z = -00293470},
-	p2 = {x = 00017400, z = -00287523},
-	p3 = {x = 00029323, z = -00228633},
-	p4 = {x = 00080672, z = -00112222},
-}
-local Zone_TRNC_2 = {
-	p1 = {x = 00080672, y = -00112222},
-	p2 = {x = 00029749, y = -00228633},
-	p3 = {x = 00006260, y = -00223009},
-	p4 = {x = 00011106, y = -00167628},
-}
-
 local SwapCountry = {}
 
 function SwapCountry.isUntInZone(gp, zone)
@@ -26,7 +13,6 @@ function SwapCountry.isUntInZone(gp, zone)
 	
 	return utils.pointInZone(gpPoint, zone)	
 end
-
 
 
 function SwapCountry.swapGp(gp, endCountry)
@@ -69,10 +55,11 @@ function SwapCountry.swapInRangeOfUnit(untName, range, ctgry)
 		}	
 	}
 	world.searchObjects(Object.Category.UNIT, volS, ifFound)
-	env.info("Found "..#foundUnits.." units in range")
 	for _, found in pairs(foundUnits) do
 		foundUnit = Unit.getByName(found)
 		if ctgry ~= nil then
+			env.info("category: "..ctgry)
+			env.info("foundUnit category is: "..foundUnit:getCategory())
 			if foundUnit:getCategory() == ctgry then
 				if foundUnit:getCoalition() == 0 then
 					if foundUnit:getCoalition() ~= unt:getCoalition() then		
