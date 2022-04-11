@@ -7,6 +7,12 @@ function utils.protectedCall(...)
   end
 end
 
+function utils.getMag(vector)
+
+  return math.sqrt(vector.x*vector.x + vector.y*vector.y + vector.z*vector.z)
+
+end
+
 function utils.getDistance(pt1, pt2)
   local dx = pt1.x - pt2.x
   local dz = pt1.z - pt2.z

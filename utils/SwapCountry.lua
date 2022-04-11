@@ -17,6 +17,12 @@ end
 function SwapCountry.swapGp(gp, endCountry)
 	local gpTable = utils.gpInfoMiz(gp)
 	if gpTable ~= nil then
+		for i, unt in pairs(gp:getUnits()) do
+			gpTable.units[i].alt = gp:getUnit(i):getPoint().y
+			gpTable.units[i].speed = utils.getMag(gp:getUnit(i):getVelocity())
+			gpTable.units[i].x = gp:getUnit(i):getPoint().x
+			gpTable.units[i].y = gp:getUnit(i):getPoint().z
+		end
 		gp:destroy()
 		coalition.addGroup(country.id[endCountry], gp:getCategory(), gpTable)
 	end
@@ -56,10 +62,11 @@ function SwapCountry.swapInRangeOfUnit(untName, range, ctgry)
 	world.searchObjects(Object.Category.UNIT, volS, ifFound)
 	for _, found in pairs(foundUnits) do
 		foundUnit = Unit.getByName(found)
-		if ctgry ~= nil then
+		env.info("found units")
+		env.info("category: "..ctgry)
+		if ctgry~=nil then
+			env.info("foundUnit category is: "..foundUnit:getGroup():getCategory())
 			if foundUnit:getGroup():getCategory() == ctgry then
-				env.info("category: "..ctgry)
-				env.info("foundUnit category is: "..foundUnit:getGroup():getCategory())
 				if foundUnit:getCoalition() == 0 then
 					if foundUnit:getCoalition() ~= unt:getCoalition() then
 						if unt:getCoalition() == 1 then

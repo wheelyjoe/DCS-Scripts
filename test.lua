@@ -17,7 +17,7 @@ local function trackPlanes()
 		for _, unt in pairs(gp:getUnits()) do
 			if swapSides.isUntInZone(unt, TRNC_all) then
 --				swapSides.swapInRangeOfUnit(unt:getName(), 5000)
-				swapSides.swapInRangeOfUnit(unt:getName(), 100000, Group.Category.AIRCRAFT)
+				swapSides.swapInRangeOfUnit(unt:getName(), 1000000, Group.Category.AIRPLANE)
 --				This isn't working
 --					tasking.newTaskFollowGp("Turkey F16", gp:getName())
 --					tasking.nearestGpFromCoaFollow(gp:getName(), coalition.side.NEUTRAL,
