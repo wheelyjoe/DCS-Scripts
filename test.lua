@@ -9,7 +9,7 @@ local test = {}
 local TRNC_all = {{00053152, -00293470}, {00017400, -00287523},
  {00029323, -00228633}, {00080672, -00112222},
   {00029749, -00228633}, {00006260, -00223009}, {00011106,-00167628}}
-
+local enforcingGps = {"Turkey F16"}
 
 
 local function trackPlanes()
@@ -28,13 +28,14 @@ local function trackPlanes()
 end
 
 function test.main()
-	timer.scheduleFunction(function()
-	  utils.protectedCall(trackPlanes)
-	  return timer.getTime() + refreshRate
-	end,
-	{},
-	timer.getTime() + refreshRate
-	)
+	-- timer.scheduleFunction(function()
+	--   utils.protectedCall(trackPlanes)
+	--   return timer.getTime() + refreshRate
+	-- end,
+	-- {},
+	-- timer.getTime() + refreshRate
+	-- )
+  tasking.noFlyZone(enforcingGps, 1, 2, TRNC_all)
 end
 
 --swapSides.swapGpCountry("TURKEY","CJTF_RED")

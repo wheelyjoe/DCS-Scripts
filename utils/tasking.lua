@@ -75,7 +75,18 @@ function tasking.nearestGpFromCoaFollow(gpName, coa, cat)
 	tasking.newTaskFollowGp(esctName, gpName)
 end
 
+function tasking.noFlyZone(enfGroup, coaDef, coaOut, zone)
+	for _, plyr in pairs(coalition.getPlayers(coaOut)) do
+		if utils.point_inside_poly(plyr:getPoint().x, plyr.getPoint().z, zone) then
+			for _, gpName in pairs(enfGroup) do
+				if coaDef == 1 then
+					SwapCountry.swapGp(Group:getByName(gpName), "CJTF_RED")
+				else
+					SwapCountry.swapGp(Group:getByName(gpName), "CJTF_BLUE")
+				end
+		end
+	end
+end
 -- TODO: No fly zone
-
 
 return tasking

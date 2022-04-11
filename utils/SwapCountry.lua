@@ -48,6 +48,27 @@ local ifFound = function(foundItem, val)
 	return true
 end
 
+function SwapCountry.swapTypeCoa(coaStart, coaEnd, type)
+	local toSwap = {}
+	for _, gp in pairs(coalition.getGroups(coaStart)) do
+		if type~nil then
+			if gp:getType() == type then
+				if coaEnd == 1 then
+					swapCountry.swapGp(gp, "CJTF_RED")
+				elseif coaEnd == 2 then
+					swapCountry.swapGp(gp, "CJTF_BLUE")
+				end
+			end
+		else
+			if coaEnd == 1 then
+				swapCountry.swapGp(gp, "CJTF_RED")
+			elseif coaEnd == 2 then
+				swapCountry.swapGp(gp, "CJTF_BLUE")
+			end
+		end
+	end
+end
+
 function SwapCountry.swapInRangeOfUnit(untName, range, ctgry)
 	unt = Unit.getByName(untName)
 	local untPt = unt:getPoint()

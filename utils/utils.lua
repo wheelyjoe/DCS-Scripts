@@ -69,6 +69,12 @@ function utils.point_inside_poly(x,y,poly)
 	return inside
 end
 
+function utils.detected_in_poly(unitName, poly)
+
+  --TODO: This function
+
+end
+
 function utils.pointInZone(pnt, zone)
 	xP = pnt.x
 	zP = pnt.y
