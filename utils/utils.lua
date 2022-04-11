@@ -8,9 +8,7 @@ function utils.protectedCall(...)
 end
 
 function utils.getMag(vector)
-
   return math.sqrt(vector.x*vector.x + vector.y*vector.y + vector.z*vector.z)
-
 end
 
 function utils.getDistance(pt1, pt2)

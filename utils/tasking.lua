@@ -75,4 +75,7 @@ function tasking.nearestGpFromCoaFollow(gpName, coa, cat)
 	tasking.newTaskFollowGp(esctName, gpName)
 end
 
+-- TODO: No fly zone
+
+
 return tasking
