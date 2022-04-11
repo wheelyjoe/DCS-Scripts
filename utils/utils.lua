@@ -7,6 +7,12 @@ function utils.protectedCall(...)
   end
 end
 
+function utils.getDistance(pt1, pt2)
+  local dx = pt1.x - pt2.x
+  local dz = pt1.z - pt2.z
+  return math.sqrt(dx*dx + dz*dz)
+end
+
 function utils.gpInfoMiz(gp)
 	local gpName = gp:getName()
 	local coa = gp:getCoalition()
@@ -16,14 +22,14 @@ function utils.gpInfoMiz(gp)
 				if vehGp.name == gpName then
 					env.info("found "..gpName.." in miz")
 					gpInfo = vehGp
-					return gpInfo					
+					return gpInfo
 				end
 			end
 			for _, planeGp in pairs(county.plane.group) do
 				if planeGp.name == gpName then
 					env.info("found "..gpName.." in miz")
 					gpInfo = planeGp
-					return gpInfo					
+					return gpInfo
 				end
 			end
 		end
@@ -38,10 +44,10 @@ function utils.point_inside_poly(x,y,poly)
 	local p1y = poly[1][2]
 
 	for i=0,#poly do
-		
+
 		local p2x = poly[((i)%#poly)+1][1]
 		local p2y = poly[((i)%#poly)+1][2]
-		
+
 		if y > math.min(p1y,p2y) then
 			if y <= math.max(p1y,p2y) then
 				if x <= math.max(p1x,p2x) then
@@ -54,7 +60,7 @@ function utils.point_inside_poly(x,y,poly)
 				end
 			end
 		end
-		p1x,p1y = p2x,p2y	
+		p1x,p1y = p2x,p2y
 	end
 	return inside
 end
@@ -62,7 +68,7 @@ end
 function utils.pointInZone(pnt, zone)
 	xP = pnt.x
 	zP = pnt.y
-	return utils.point_inside_poly(xP,zP, zone)	
+	return utils.point_inside_poly(xP,zP, zone)
 end
 
 return utils
