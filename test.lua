@@ -11,7 +11,6 @@ local TRNC_all = {{00053152, -00293470}, {00017400, -00287523},
   {00029749, -00228633}, {00006260, -00223009}, {00011106,-00167628}}
 local enforcingGps = {"Turkey F16"}
 
-
 local function trackPlanes()
 -- 	for _, gp in pairs(coalition.getGroups(2, Group.Category.AIRPLANE)) do
 -- 		for _, unt in pairs(gp:getUnits()) do
@@ -26,7 +25,6 @@ local function trackPlanes()
 -- 		end
 -- 	end
   tasking.noFlyZone(enforcingGps, coalition.side.RED, coalition.side.BLUE, TRNC_all)
-
 end
 
 function test.main()

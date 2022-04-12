@@ -74,7 +74,6 @@ local function generateTasking(params)		--sends nineline and starts laser
 	missionCommands.addCommandForCoalition(2, nineline.text, nil, blank, {})
 end
 
-
 local function onDeathEvent(event)			-- run when something dies
 	if event.id == world.event.S_EVENT_DEAD then
 		if event.initiator and event.initiator:getName() == targetUnit:getName() then
@@ -106,7 +105,6 @@ end
 function deathHandler:onEvent(event)
   utils.protectedCall(onDeathEvent,event)
 end
-
 
 local function main(afacName, code, freq) -- runs once after delay
 		foundUnitsRed = {}
