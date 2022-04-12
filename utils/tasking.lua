@@ -1,6 +1,7 @@
 local tasking = {}
 local utils = require 'DCS-Scripts.utils.utils'
 local SwapCountry = require 'DCS-Scripts.utils.SwapCountry'
+local afac = require "DCS-Scripts.utils.faca"
 
 function tasking.changeTaskForGp(gpName, newTask)
 	local gp = Group.getByName(gpName)
@@ -95,6 +96,19 @@ function tasking.noFlyZone(enfGroup, coaDef, coaOut, zone)
 	end
 end
 
+function tasking.startFACTask(gpName, freq)
+	taskTable = {
+	  id = 'FAC',
+	  params = {
+	    frequency = freq,
+	    modulation = 0,
+	    callname = math.random(1,8),
+	    number = math.random(1,9)
+	  }
+	}
+tasking.changeTaskForGp(gpName, taskTable)
+end
+
 function tasking.newTaskOrbitPt(gpName, alt, point)
 	taskTable = {
 		id = 'Orbit',
@@ -107,19 +121,11 @@ function tasking.newTaskOrbitPt(gpName, alt, point)
 	tasking.changeTaskForGp(gpName, taskTable)
 end
 
-function tasking.lasePoint(unt, pt, code)
-
-	--TODO: finish fcn. Create laser from unt to pt with code
-
-end
-
 function tasking.FACA(gpName, location, code, freq)
-
 	local gp = Group.getByName(gpName)
 	local unt = gp:getUnit(1)
-	tasking.newTaskOrbitPt(gpName, 5000, location)
-	--TODO finish fcn. Something like send laser to nearest tgt and put info in F10 menu for coa
-
+	tasking.newTaskOrbitPt(gpName, 5000, {x= location.x, y = location.z})
+	afac.startAFAC(unt:getName(),code, freq)
 end
 
 return tasking

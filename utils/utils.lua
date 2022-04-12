@@ -83,6 +83,8 @@ end
 
 function utils.nearestHostileInRange(untName, range, type)
   foundUnit= {}
+	local nearest
+	local distance
   local unt = Unit.getByName(untName)
   local untPt = unt:GetPoint()
   local volS = {
@@ -90,14 +92,11 @@ function utils.nearestHostileInRange(untName, range, type)
     params = {
       point = untPt,
       radius = range
-    }
-  }
+    	}
+  	}
   world.searchObjects(Object.Category.UNIT, volS, ifFound)
-	local nearest
-	local distance
 	for _, foundUnt in pairs(foundUnits) do
-		if (unt:getCoalition()==1 and Unit.getByName(foundUnt):getCoalition==2)
-			or (unt:getCoalition==2 and Unit.getByName(foundUnt):getCoalition==1) then
+		if (unt:getCoalition() == 1 and Unit.getByName(foundUnt):getCoalition() == 2)	or (unt:getCoalition() == 2 and Unit.getByName(foundUnt):getCoalition() == 1) then
 			if distance == nil then
 				nearest = fountUnt
 				distance = utils.getDistance(unt, Unit.getByName(foundUnt))
@@ -120,14 +119,11 @@ function utils.nearestGpFromCoalition(gpName, coa, cat)
 			dist = utils.getDistance(gp:getUnit(1):getPoint(), coaGp:getUnit(1):getPoint())
 			if  lowest == nil then
 				lowest = dist
-				current = coaGp:getName()
+				current = foundUnt:getName()
 			elseif dist < lowest then
 				lowest = dist
-				current = coaGp:getName()
+				current = foundUnt:getName()
 			end
-		else
-			env.info("No groups returned")
-			return current
 		end
 	end
 	env.info("Nearest Group: "..current)
