@@ -81,7 +81,7 @@ function utils.detected_in_poly(unitName, poly)
 
 end
 
-function utils.hostileInRange(untName, range, type)
+function utils.nearestHostileInRange(untName, range, type)
   foundUnit= {}
   local unt = Unit.getByName(untName)
   local untPt = unt:GetPoint()
@@ -93,8 +93,21 @@ function utils.hostileInRange(untName, range, type)
     }
   }
   world.searchObjects(Object.Category.UNIT, volS, ifFound)
-  --TODO finish fcn. Something like find nearest of the foundUnits of right type and return
-
+	local nearest
+	local distance
+	for _, foundUnt in pairs(foundUnits) do
+		if (unt:getCoalition()==1 and Unit.getByName(foundUnt):getCoalition==2)
+			or (unt:getCoalition==2 and Unit.getByName(foundUnt):getCoalition==1) then
+			if distance == nil then
+				nearest = fountUnt
+				distance = utils.getDistance(unt, Unit.getByName(foundUnt))
+			elseif utils.getDistance(unt, Unit.getByName(foundUnt)) < distance then
+				distance = utils.getDistance(unt, Unit.getByName(foundUnt))
+				nearest = foundUnt
+			end
+		end
+	end
+	return nearest
 end
 
 function utils.nearestGpFromCoalition(gpName, coa, cat)

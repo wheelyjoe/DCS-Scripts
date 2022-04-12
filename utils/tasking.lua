@@ -95,18 +95,29 @@ function tasking.noFlyZone(enfGroup, coaDef, coaOut, zone)
 	end
 end
 
-function tasking.laseTargets(gpName, location, code, freq)
-
-	local gp = Group.getByName(gpName)
-	local FACA = gp:getUnit(1)
+function tasking.newTaskOrbitPt(gpName, alt, point)
 	taskTable = {
 		id = 'Orbit',
 		params = {
 	  	pattern = "Circle",
-	  	point = location,
-	  	altitude = 5000
+	  	point = pt,
+	  	altitude = alt
 	 	}
 	}
+	tasking.changeTaskForGp(gpName, taskTable)
+end
+
+function tasking.lasePoint(unt, pt, code)
+
+	--TODO: finish fcn. Create laser from unt to pt with code
+
+end
+
+function tasking.FACA(gpName, location, code, freq)
+
+	local gp = Group.getByName(gpName)
+	local unt = gp:getUnit(1)
+	tasking.newTaskOrbitPt(gpName, 5000, location)
 	--TODO finish fcn. Something like send laser to nearest tgt and put info in F10 menu for coa
 
 end
