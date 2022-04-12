@@ -15,6 +15,12 @@ function SwapCountry.isUntInZone(gp, zone)
 end
 
 function SwapCountry.swapGp(gp, endCountry)
+	if not gp then
+		return
+	end
+	if gp:getUnit(1):getCountry() == country.id[endCountry] then
+		return
+	end
 	local gpTable = utils.gpInfoMiz(gp)
 	if gpTable ~= nil then
 		for i, unt in pairs(gp:getUnits()) do
@@ -34,7 +40,6 @@ function SwapCountry.swapGpCountry(startCountry, endCountry)
 		for _, gp in pairs(coalition.getGroups(coa)) do
 			if gp:getUnit(1):getCountry() == country.id[startCountry] then
 				toSwap[#toSwap+1] = gp
-				env.info("swapping gp ".. gp:getName())
 			end
 		end
 	end
@@ -51,7 +56,7 @@ end
 function SwapCountry.swapTypeCoa(coaStart, coaEnd, type)
 	local toSwap = {}
 	for _, gp in pairs(coalition.getGroups(coaStart)) do
-		if type~nil then
+		if type ~= nil then
 			if gp:getType() == type then
 				if coaEnd == 1 then
 					swapCountry.swapGp(gp, "CJTF_RED")

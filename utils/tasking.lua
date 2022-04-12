@@ -1,29 +1,6 @@
 local tasking = {}
 local utils = require 'DCS-Scripts.utils.utils'
-
-function tasking.nearestGpFromCoalition(gpName, coa, cat)
-	local gp = Group.getByName(gpName)
-	local lowest = nil
-	local dist
-	local current = nil
-	for _, coaGp in pairs(coalition.getGroups(coa, cat)) do
-		if #coalition.getGroups(coa) > 0 then
-			dist = utils.getDistance(gp:getUnit(1):getPoint(), coaGp:getUnit(1):getPoint())
-			if  lowest == nil then
-				lowest = dist
-				current = coaGp:getName()
-			elseif dist < lowest then
-				lowest = dist
-				current = coaGp:getName()
-			end
-		else
-			env.info("No groups returned")
-			return current
-		end
-	end
-	env.info("Nearest Group: "..current)
-	return current
-end
+local SwapCountry = require 'DCS-Scripts.utils.SwapCountry'
 
 function tasking.changeTaskForGp(gpName, newTask)
 	local gp = Group.getByName(gpName)
@@ -71,22 +48,67 @@ function tasking.newTaskFollowGp(followName, tgtName)
 end
 
 function tasking.nearestGpFromCoaFollow(gpName, coa, cat)
-	local esctName = tasking.nearestGpFromCoalition(gpName, coa, cat)
+	local esctName = utils.nearestGpFromCoalition(gpName, coa, cat)
 	tasking.newTaskFollowGp(esctName, gpName)
 end
 
-function tasking.noFlyZone(enfGroup, coaDef, coaOut, zone)
+function tasking.noFlyZonePlyr(enfGroup, coaDef, coaOut, zone)
 	for _, plyr in pairs(coalition.getPlayers(coaOut)) do
-		if utils.point_inside_poly(plyr:getPoint().x, plyr.getPoint().z, zone) then
+		if utils.point_inside_poly(plyr:getPoint().x, plyr:getPoint().z, zone) then
 			for _, gpName in pairs(enfGroup) do
 				if coaDef == 1 then
-					SwapCountry.swapGp(Group:getByName(gpName), "CJTF_RED")
+					SwapCountry.swapGp(Group.getByName(gpName), "CJTF_RED")
 				else
-					SwapCountry.swapGp(Group:getByName(gpName), "CJTF_BLUE")
+					SwapCountry.swapGp(Group.getByName(gpName), "CJTF_BLUE")
 				end
+			end
 		end
 	end
 end
--- TODO: No fly zone
+
+function tasking.noFlyZone(enfGroup, coaDef, coaOut, zone)
+	for _, gp in pairs(coalition.getGroups(coaOut,Group.Category.AIRPLANE)) do
+		for _, unt in pairs(gp:getUnits()) do
+			if utils.point_inside_poly(unt:getPoint().x, unt:getPoint().z, zone) then
+				for _, gpName in pairs(enfGroup) do
+					if coaDef == 1 then
+						SwapCountry.swapGp(Group.getByName(gpName), "CJTF_RED")
+					else
+						SwapCountry.swapGp(Group.getByName(gpName), "CJTF_BLUE")
+					end
+				end
+			end
+		end
+	end
+	for _, gp in pairs(coalition.getGroups(coaOut,Group.Category.HELICOPTER)) do
+		for _, unt in pairs(gp:getUnits()) do
+			if utils.point_inside_poly(unt:getPoint().x, unt:getPoint().z, zone) then
+				for _, gpName in pairs(enfGroup) do
+					if coaDef == 1 then
+						SwapCountry.swapGp(Group.getByName(gpName), "CJTF_RED")
+					else
+						SwapCountry.swapGp(Group.getByName(gpName), "CJTF_BLUE")
+					end
+				end
+			end
+		end
+	end
+end
+
+function tasking.laseTargets(gpName, location, code, freq)
+
+	local gp = Group.getByName(gpName)
+	local FACA = gp:getUnit(1)
+	taskTable = {
+		id = 'Orbit',
+		params = {
+	  	pattern = "Circle",
+	  	point = location,
+	  	altitude = 5000
+	 	}
+	}
+	--TODO finish fcn. Something like send laser to nearest tgt and put info in F10 menu for coa
+
+end
 
 return tasking

@@ -1,4 +1,10 @@
 local utils = {}
+local foundUnits =  {}
+local ifFound = function(foundItem, val)
+	foundUnits[#foundUnits+1] = foundItem:getName()
+	return true
+end
+
 
 function utils.protectedCall(...)
   local status, retval = pcall(...)
@@ -73,6 +79,46 @@ function utils.detected_in_poly(unitName, poly)
 
   --TODO: This function
 
+end
+
+function utils.hostileInRange(untName, range, type)
+  foundUnit= {}
+  local unt = Unit.getByName(untName)
+  local untPt = unt:GetPoint()
+  local volS = {
+    id = world.VolumeType.SPHERE,
+    params = {
+      point = untPt,
+      radius = range
+    }
+  }
+  world.searchObjects(Object.Category.UNIT, volS, ifFound)
+  --TODO finish fcn. Something like find nearest of the foundUnits of right type and return
+
+end
+
+function utils.nearestGpFromCoalition(gpName, coa, cat)
+	local gp = Group.getByName(gpName)
+	local lowest = nil
+	local dist
+	local current = nil
+	for _, coaGp in pairs(coalition.getGroups(coa, cat)) do
+		if #coalition.getGroups(coa) > 0 then
+			dist = utils.getDistance(gp:getUnit(1):getPoint(), coaGp:getUnit(1):getPoint())
+			if  lowest == nil then
+				lowest = dist
+				current = coaGp:getName()
+			elseif dist < lowest then
+				lowest = dist
+				current = coaGp:getName()
+			end
+		else
+			env.info("No groups returned")
+			return current
+		end
+	end
+	env.info("Nearest Group: "..current)
+	return current
 end
 
 function utils.pointInZone(pnt, zone)
