@@ -13,29 +13,31 @@ local enforcingGps = {"Turkey F16"}
 
 
 local function trackPlanes()
-	for _, gp in pairs(coalition.getGroups(2, Group.Category.AIRPLANE)) do
-		for _, unt in pairs(gp:getUnits()) do
-			if swapSides.isUntInZone(unt, TRNC_all) then
---				swapSides.swapInRangeOfUnit(unt:getName(), 5000)
-				swapSides.swapInRangeOfUnit(unt:getName(), 1000000, Group.Category.AIRPLANE)
---				This isn't working
---					tasking.newTaskFollowGp("Turkey F16", gp:getName())
---					tasking.nearestGpFromCoaFollow(gp:getName(), coalition.side.NEUTRAL,
---					 Group.Category.AIRPLANE)
-			end
-		end
-	end
+-- 	for _, gp in pairs(coalition.getGroups(2, Group.Category.AIRPLANE)) do
+-- 		for _, unt in pairs(gp:getUnits()) do
+-- 			if swapSides.isUntInZone(unt, TRNC_all) then
+-- --				swapSides.swapInRangeOfUnit(unt:getName(), 5000)
+-- 				swapSides.swapInRangeOfUnit(unt:getName(), 1000000, Group.Category.AIRPLANE)
+-- --				This isn't working
+-- --					tasking.newTaskFollowGp("Turkey F16", gp:getName())
+-- --					tasking.nearestGpFromCoaFollow(gp:getName(), coalition.side.NEUTRAL,
+-- --					 Group.Category.AIRPLANE)
+-- 			end
+-- 		end
+-- 	end
+  tasking.noFlyZone(enforcingGps, coalition.side.RED, coalition.side.BLUE, TRNC_all)
+
 end
 
 function test.main()
-	-- timer.scheduleFunction(function()
-	--   utils.protectedCall(trackPlanes)
-	--   return timer.getTime() + refreshRate
-	-- end,
-	-- {},
-	-- timer.getTime() + refreshRate
-	-- )
-  tasking.noFlyZone(enforcingGps, 1, 2, TRNC_all)
+	timer.scheduleFunction(function()
+	  utils.protectedCall(trackPlanes)
+	  return timer.getTime() + refreshRate
+	end,
+	{},
+	timer.getTime() + refreshRate
+	)
+  env.info("Running test.lua")
 end
 
 --swapSides.swapGpCountry("TURKEY","CJTF_RED")
