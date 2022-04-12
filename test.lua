@@ -31,7 +31,6 @@ end
 
 function test.main()
   tasking.FACA("Drone",Group.getByName("target"):getUnit(1):getPoint(), math.random(1111,1788), 244)
-  tasking.FACA("Drone 2",Group.getByName("target 2"):getUnit(1):getPoint(), math.random(1111,1788), 244)
 	-- timer.scheduleFunction(function()
 	--   utils.protectedCall(trackPlanes)
 	--   return timer.getTime() + refreshRate
