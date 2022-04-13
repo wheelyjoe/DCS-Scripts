@@ -1,3 +1,4 @@
+package.path = package.path..";"..lfs.writedir().."/Scripts/?.lua"
 local utils = {}
 local foundUnits =  {}
 local ifFound = function(foundItem, val)
@@ -5,6 +6,22 @@ local ifFound = function(foundItem, val)
 	return true
 end
 
+function utils.file_exists(file)
+  local f = io.open(file, "rb")
+  if f then f:close() end
+  return f ~= nil
+end
+
+function utils.STMtoGpTable(stmLink)
+	local stm = require stmLink
+	for _, coa in pairs(stm.staticTemplate)	do
+		for _, country in pairs(coa.country) do
+			if country.vehicle then
+				env.info("There's a unit in "..country.name)
+			end
+		end
+	end
+end
 
 function utils.protectedCall(...)
   local status, retval = pcall(...)

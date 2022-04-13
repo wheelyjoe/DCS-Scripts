@@ -109,7 +109,8 @@ function tasking.startFACTask(gpName, freq)
 tasking.changeTaskForGp(gpName, taskTable)
 end
 
-function tasking.newTaskOrbitPt(gpName, alt, point)
+function tasking.newTaskOrbitPt(gpName, alt, pt)
+	--TODO: Work out distance from gp to pt and speed, use SDT to work out ETA. Schedule search for then
 	taskTable = {
 		id = 'Orbit',
 		params = {
