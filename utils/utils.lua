@@ -1,4 +1,3 @@
-package.path = package.path..";"..lfs.writedir().."/Scripts/?.lua"
 local utils = {}
 local foundUnits =  {}
 local ifFound = function(foundItem, val)
@@ -6,21 +5,10 @@ local ifFound = function(foundItem, val)
 	return true
 end
 
-function utils.file_exists(file)
+local function file_exists(file)
   local f = io.open(file, "rb")
   if f then f:close() end
   return f ~= nil
-end
-
-function utils.STMtoGpTable(stmLink)
-	local stm = require stmLink
-	for _, coa in pairs(stm.staticTemplate)	do
-		for _, country in pairs(coa.country) do
-			if country.vehicle then
-				env.info("There's a unit in "..country.name)
-			end
-		end
-	end
 end
 
 function utils.protectedCall(...)
@@ -63,6 +51,43 @@ function utils.gpInfoMiz(gp)
 	end
 end
 
+function utils.STMtoGpTable(stmLink)
+	local gps = {}
+	if file_exists(stmLink) then
+		dofile(stmLink)
+		for _, coa in pairs(staticTemplate.coalition) do
+			for _, country in pairs(coa.country) do
+				if country.vehicle ~= nil then
+					env.info("There's a vehicle gp in "..country.name)
+					for _, vehGp in pairs(country.vehicle.group) do
+						gps[#gps+1] = {table = vehGp, cntry = country.id, ctgry = Group.Category.GROUND}
+					end
+				end
+				if country.helicopter ~= nil then
+					for _, heliGp in pairs(country.helicopter.group) do
+						gps[#gps+1] = {table = heliGp, cntry = country.id, ctgry = Group.Category.HELICOPTER}
+					end
+				end
+				if country.plane ~= nil then
+					for _, planeGp in pairs(country.plane.group) do
+						gps[#gps+1] = {table = planeGp, cntry = country.id, ctgry = Group.Category.AIRPLANE}
+					end
+				end
+			end
+		end
+		return gps
+	else
+		env.info("file doesn't exist")
+	end
+end
+
+function utils.spawnSTM(stmLink)
+	local toSpawn = utils.STMtoGpTable(stmLink)
+	for _, gp in pairs(toSpawn) do
+		coalition.addGroup(gp.cntry, gp.ctgry, gp.table)
+	end
+end
+
 function utils.point_inside_poly(x,y,poly)
 	-- poly is like { {x1,y1},{x2,y2} .. {xn,yn}}
 	-- x,y is the point
@@ -95,7 +120,6 @@ end
 function utils.detected_in_poly(unitName, poly)
 
   --TODO: This function
-
 end
 
 function utils.nearestHostileInRange(untName, range, type)

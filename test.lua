@@ -1,7 +1,6 @@
 package.path = package.path..";"..lfs.writedir().."/Scripts/?.lua"
-local STMLink = 'DCS-Scripts.research.testSTM'
+local STMLink = 'E:\\wheel\\Documents\\Documents not game stuff\\DCS Stuff\\Dev\\DCS-Scripts\\research\\testSTM.stm'
 local refreshRate = 10
-
 local swapSides = require 'DCS-Scripts.utils.SwapCountry'
 local tasking = require 'DCS-Scripts.utils.tasking'
 local utils = require 'DCS-Scripts.utils.utils'
@@ -17,7 +16,7 @@ local function trackPlanes()
 -- 			if swapSides.isUntInZone(unt, TRNC_all) then
 -- --				swapSides.swapInRangeOfUnit(unt:getName(), 5000)
 -- 				swapSides.swapInRangeOfUnit(unt:getName(), 1000000, Group.Category.AIRPLANE)
---
+--s
 -- --					tasking.newTaskFollowGp("Turkey F16", gp:getName())
 -- --					tasking.nearestGpFromCoaFollow(gp:getName(), coalition.side.NEUTRAL,
 -- --					 Group.Category.AIRPLANE)
@@ -37,7 +36,7 @@ function test.main()
 	-- timer.getTime() + refreshRate
 	-- )
   -- env.info("Running test.lua")
-  utils.STMtoGpTable(STMLink)
+  utils.spawnSTM(STMLink)
 end
 
 --swapSides.swapGpCountry("TURKEY","CJTF_RED")
