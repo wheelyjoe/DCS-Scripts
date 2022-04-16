@@ -1,5 +1,3 @@
-package.path = package.path..";"..lfs.writedir().."/Scripts/?.lua"
-
 local utils = 'DCS-Scripts.utils.utils'
 
 local foundUnits = {}

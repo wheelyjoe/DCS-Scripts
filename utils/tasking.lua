@@ -106,7 +106,7 @@ function tasking.startFACTask(gpName, freq)
 	    number = math.random(1,9)
 	  }
 	}
-tasking.changeTaskForGp(gpName, taskTable)
+	tasking.changeTaskForGp(gpName, taskTable)
 end
 
 function tasking.newTaskOrbitPt(gpName, alt, pt)

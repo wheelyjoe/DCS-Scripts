@@ -1,9 +1,12 @@
 package.path = package.path..";"..lfs.writedir().."/Scripts/?.lua"
-local STMLink = 'E:\\wheel\\Documents\\Documents not game stuff\\DCS Stuff\\Dev\\DCS-Scripts\\research\\testSTM.stm'
+local STMLink = 'C:\\Users\\wheel\\Documents\\DCS\\DCS-Scripts\\research\\StaticsSTM.stm'
 local refreshRate = 10
 local swapSides = require 'DCS-Scripts.utils.SwapCountry'
 local tasking = require 'DCS-Scripts.utils.tasking'
 local utils = require 'DCS-Scripts.utils.utils'
+local spawning = require 'DCS-Scripts.utils.spawning'
+local locations = require 'DCS-Scripts.utils.locations'
+
 local test = {}
 local TRNC_all = {{00053152, -00293470}, {00017400, -00287523},
  {00029323, -00228633}, {00080672, -00112222},
@@ -11,7 +14,7 @@ local TRNC_all = {{00053152, -00293470}, {00017400, -00287523},
 local enforcingGps = {"Turkey F16"}
 
 local function trackPlanes()
--- 	for _, gp in pairs(coalition.getGroups(2, Group.Category.AIRPLANE)) do
+  -- 	for _, gp in pairs(coalition.getGroups(2, Group.Category.AIRPLANE)) do
 -- 		for _, unt in pairs(gp:getUnits()) do
 -- 			if swapSides.isUntInZone(unt, TRNC_all) then
 -- --				swapSides.swapInRangeOfUnit(unt:getName(), 5000)
@@ -27,7 +30,7 @@ local function trackPlanes()
 end
 
 function test.main()
-  tasking.FACA("Drone",Group.getByName("target"):getUnit(1):getPoint(), math.random(1111,1788), 244)
+  --tasking.FACA("Drone",Group.getByName("target"):getUnit(1):getPoint(), math.random(1111,1788), 244)
 	-- timer.scheduleFunction(function()
 	--   utils.protectedCall(trackPlanes)
 	--   return timer.getTime() + refreshRate
@@ -36,8 +39,9 @@ function test.main()
 	-- timer.getTime() + refreshRate
 	-- )
   -- env.info("Running test.lua")
-  -- utils.spawnSTMatPoint(STMLink, {x = 00015154, z= 00242149})
-  utils.teleportGp("target-1", {x = 00018447, z = 00224728, y = 0})
+  local ret = locations.getNearestTown(env.mission.theatre, Group.getByName("Cyprus 40mm -9"):getUnit(1):getPoint())
+  env.info("Nearest town is: ".. ret.loc..", it is: "..ret.dis.." km, or "..utils.kmToNm(ret.dis).." nautical miles, heading: "..ret.brng)
+  --utils.teleportGp("target-1", Group.getByName("target"):getUnit(1):getPoint())
 end
 
 --swapSides.swapGpCountry("TURKEY","CJTF_RED")

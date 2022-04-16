@@ -1,5 +1,6 @@
 local utils = {}
 local foundUnits =  {}
+
 local ifFound = function(foundItem, val)
 	foundUnits[#foundUnits+1] = foundItem:getName()
 	return true
@@ -23,24 +24,19 @@ function utils.getMag(vector)
 end
 
 function utils.relPos(pt1, pt2)
-
 	local xDif = pt1.x - pt2.x
 	local yDif = pt1.y - pt2.y
 	local zDif = pt1.z - pt2.z
 	env.info("xoffset = "..xDif..", yoffset = "..yDif..", zoffset = "..zDif)
 	return {x = xDif, y = yDif, z = zDif}
-
 end
 
 function utils.relAngle(hdg1,hdg2)
-
 	local ang = hdg1 - hdg2
 	return (ang + 180) % 360 - 180
-
 end
 
 function utils.gpToTable(gp)
-
 	local gpTable = {
 			["country"] = gp:getUnit(1):getCountry(),
 			["category"] = gp:getCategory(),
@@ -56,8 +52,8 @@ function utils.gpToTable(gp)
 				["category"] = gp:getCategory(),
 				["type"] = unt:getTypeName(),
 				["offsets"] = {
-					["x"] = utils.relPos({x = gpTable.x, y = gpTable.y, z = 0}, unt:getPoint()).x,
-					["y"] = utils.relPos({x = gpTable.x, y = gpTable.y, z = 0}, unt:getPoint()).z,
+					["x"] = utils.relPos({x = gpTable.x, y = 0, z = gpTable.y}, unt:getPoint()).x,
+					["y"] = utils.relPos({x = gpTable.x, y = 0, z = gpTable.y}, unt:getPoint()).z,
 					["heading"] = utils.relAngle(gpTable.heading, math.atan2(unt:getPosition().x.z, unt:getPosition().x.x)),
 				},
 				["unitId"] = unt:getID(),
@@ -74,6 +70,27 @@ function utils.getDistance(pt1, pt2)
   local dx = pt1.x - pt2.x
   local dz = pt1.z - pt2.z
   return math.sqrt(dx*dx + dz*dz)
+end
+
+function utils.getDistanceLL(ll1, ll2)
+	local latDiff = ll1.latitude - ll2.latitude
+	local longDiff = ll1.longitude - ll2.longitude
+	return math.sqrt(latDiff*latDiff + longDiff*longDiff)*100
+end
+
+function utils.kmToNm(km)
+	return km/1.852
+end
+
+function utils.nmToKm(nm)
+	return km*1.852
+end
+
+function utils.bearingToPt(pt1, pt2) --from pt1 to pt2
+	local dPhi = math.log(math.tan(pt2.latitude/2+math.pi/4)/math.tan(pt1.latitude/2+math.pi/4))
+	local dLong = math.abs(pt1.longitude-pt2.longitude)
+	local brng = math.atan2(dLong, dPhi)
+	return brng
 end
 
 function utils.gpInfoMiz(gp)
@@ -98,7 +115,6 @@ function utils.gpInfoMiz(gp)
 		end
 	end
 end
-
 
 function utils.STMtoGpTable(stmLink)
 	local gps = {}
@@ -128,8 +144,10 @@ function utils.STMtoGpTable(stmLink)
 					end
 				end
 				if country.static ~= nil then
-					for _, staticGp in pairs(country.ship.group) do
-						gps[#gps+1] = {table = staticGp, cntry = country.id, ctgry = Group.Category.SHIP}
+					for _, staticGp in pairs(country.static.group) do
+						for _, unt in pairs(staticGp.units) do
+							gps[#gps+1] = {table = unt, cntry = country.id, ctgry = "static"}
+						 end
 					end
 				end
 			end
@@ -138,27 +156,6 @@ function utils.STMtoGpTable(stmLink)
 	else
 		env.info("file doesn't exist")
 	end
-end
-
-function utils.spawnSTM(stmLink)
-	local toSpawn = utils.STMtoGpTable(stmLink)
-	for _, gp in pairs(toSpawn) do
-		coalition.addGroup(gp.cntry, gp.ctgry, gp.table)
-	end
-end
-
-function utils.teleportGp(gpName, pt)
-
-	local newGp = utils.gpToTable(Group.getByName(gpName))
-	newGp.x = pt.x
-	newGp.y = pt.y
-	for _, unt in pairs(newGp.units) do
-		unt.x = pt.x + unt.offsets.x
-		unt.y = pt.z + unt.offsets.y
-	end
-	Group.getByName(gpName):destroy()
-	coalition.addGroup(newGp.country, newGp.category, newGp)
-	--TODO: Stop spawning in wrong place
 end
 
 function utils.point_inside_poly(x,y,poly)
@@ -191,7 +188,6 @@ function utils.point_inside_poly(x,y,poly)
 end
 
 function utils.detected_in_poly(unitName, poly)
-
   --TODO: This function
 end
 
