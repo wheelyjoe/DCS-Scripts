@@ -36,7 +36,8 @@ function test.main()
 	-- timer.getTime() + refreshRate
 	-- )
   -- env.info("Running test.lua")
-  utils.spawnSTM(STMLink)
+  -- utils.spawnSTMatPoint(STMLink, {x = 00015154, z= 00242149})
+  utils.teleportGp("target-1", {x = 00018447, z = 00224728, y = 0})
 end
 
 --swapSides.swapGpCountry("TURKEY","CJTF_RED")

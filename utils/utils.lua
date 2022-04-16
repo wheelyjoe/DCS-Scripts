@@ -22,6 +22,54 @@ function utils.getMag(vector)
   return math.sqrt(vector.x*vector.x + vector.y*vector.y + vector.z*vector.z)
 end
 
+function utils.relPos(pt1, pt2)
+
+	local xDif = pt1.x - pt2.x
+	local yDif = pt1.y - pt2.y
+	local zDif = pt1.z - pt2.z
+	env.info("xoffset = "..xDif..", yoffset = "..yDif..", zoffset = "..zDif)
+	return {x = xDif, y = yDif, z = zDif}
+
+end
+
+function utils.relAngle(hdg1,hdg2)
+
+	local ang = hdg1 - hdg2
+	return (ang + 180) % 360 - 180
+
+end
+
+function utils.gpToTable(gp)
+
+	local gpTable = {
+			["country"] = gp:getUnit(1):getCountry(),
+			["category"] = gp:getCategory(),
+			["heading"] = math.atan2(gp:getUnit(1):getPosition().x.z, gp:getUnit(1):getPosition().x.x),
+			["groupId"] = gp:getID(),
+			["y"] = gp:getUnit(1):getPoint().z,
+			["x"] = gp:getUnit(1):getPoint().x,
+			["name"] = gp:getName(),
+			["units"] = {},
+	}
+	for _, unt in pairs(gp:getUnits()) do
+			gpTable.units[#gpTable.units+1] = {
+				["category"] = gp:getCategory(),
+				["type"] = unt:getTypeName(),
+				["offsets"] = {
+					["x"] = utils.relPos({x = gpTable.x, y = gpTable.y, z = 0}, unt:getPoint()).x,
+					["y"] = utils.relPos({x = gpTable.x, y = gpTable.y, z = 0}, unt:getPoint()).z,
+					["heading"] = utils.relAngle(gpTable.heading, math.atan2(unt:getPosition().x.z, unt:getPosition().x.x)),
+				},
+				["unitId"] = unt:getID(),
+				["x"] = unt:getPoint().x,
+				["y"] = unt:getPoint().z,
+				["name"] = unt:getName(),
+				["heading"] =  math.atan2(unt:getPosition().x.z, unt:getPosition().x.x),
+			}
+	end
+	return gpTable
+end
+
 function utils.getDistance(pt1, pt2)
   local dx = pt1.x - pt2.x
   local dz = pt1.z - pt2.z
@@ -51,6 +99,7 @@ function utils.gpInfoMiz(gp)
 	end
 end
 
+
 function utils.STMtoGpTable(stmLink)
 	local gps = {}
 	if file_exists(stmLink) then
@@ -73,6 +122,16 @@ function utils.STMtoGpTable(stmLink)
 						gps[#gps+1] = {table = planeGp, cntry = country.id, ctgry = Group.Category.AIRPLANE}
 					end
 				end
+				if country.ship ~= nil then
+					for _, shipGp in pairs(country.ship.group) do
+						gps[#gps+1] = {table = shipGp, cntry = country.id, ctgry = Group.Category.SHIP}
+					end
+				end
+				if country.static ~= nil then
+					for _, staticGp in pairs(country.ship.group) do
+						gps[#gps+1] = {table = staticGp, cntry = country.id, ctgry = Group.Category.SHIP}
+					end
+				end
 			end
 		end
 		return gps
@@ -86,6 +145,20 @@ function utils.spawnSTM(stmLink)
 	for _, gp in pairs(toSpawn) do
 		coalition.addGroup(gp.cntry, gp.ctgry, gp.table)
 	end
+end
+
+function utils.teleportGp(gpName, pt)
+
+	local newGp = utils.gpToTable(Group.getByName(gpName))
+	newGp.x = pt.x
+	newGp.y = pt.y
+	for _, unt in pairs(newGp.units) do
+		unt.x = pt.x + unt.offsets.x
+		unt.y = pt.z + unt.offsets.y
+	end
+	Group.getByName(gpName):destroy()
+	coalition.addGroup(newGp.country, newGp.category, newGp)
+	--TODO: Stop spawning in wrong place
 end
 
 function utils.point_inside_poly(x,y,poly)
