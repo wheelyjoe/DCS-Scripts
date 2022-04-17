@@ -27,7 +27,6 @@ function utils.relPos(pt1, pt2)
 	local xDif = pt1.x - pt2.x
 	local yDif = pt1.y - pt2.y
 	local zDif = pt1.z - pt2.z
-	env.info("xoffset = "..xDif..", yoffset = "..yDif..", zoffset = "..zDif)
 	return {x = xDif, y = yDif, z = zDif}
 end
 
@@ -36,7 +35,7 @@ function utils.relAngle(hdg1,hdg2)
 	return (ang + 180) % 360 - 180
 end
 
-function utils.gpToTable(gp)
+function utils.gpToTable(gp) --Issues with moving gps
 	local gpTable = {
 			["country"] = gp:getUnit(1):getCountry(),
 			["category"] = gp:getCategory(),
@@ -86,11 +85,72 @@ function utils.nmToKm(nm)
 	return km*1.852
 end
 
-function utils.bearingToPt(pt1, pt2) --from pt1 to pt2
-	local dPhi = math.log(math.tan(pt2.latitude/2+math.pi/4)/math.tan(pt1.latitude/2+math.pi/4))
-	local dLong = math.abs(pt1.longitude-pt2.longitude)
-	local brng = math.atan2(dLong, dPhi)
+function utils.brngToPtLO(pt1, pt2)
+	local distance = ((pt1.x - pt2.x)^2 + (pt1.z - pt2.z)^2)^0.5
+	local bearing_vector = {
+		x = pt2.x - pt1.x,
+		y = pt2.y - pt1.y,
+		z = pt2.z - pt1.z
+		}
+	local bearing_rad = math.atan2(bearing_vector.z, bearing_vector.x)
+	if bearing_rad < 0 then
+			bearing_rad = bearing_rad + (2 * math.pi)
+	end
+  local bearing = math.deg(bearing_rad)
+	return bearing
+end
+
+function utils.round(num, dp)
+    --[[
+    round a number to so-many decimal of places, which can be negative,
+    e.g. -1 places rounds to 10's,
+
+    examples
+        173.2562 rounded to 0 dps is 173.0
+        173.2562 rounded to 2 dps is 173.26
+        173.2562 rounded to -1 dps is 170.0
+    ]]--
+    local mult = 10^(dp or 0)
+    return math.floor(num * mult + 0.5)/mult
+end
+
+function utils.radToDeg(rad)
+	return rad*(180/math.pi)
+end
+
+function utils.bearingToPtLL(pt1, pt2) --from pt1 to pt2
+	-- local dL = pt2.longitude - pt1.longitude
+	-- local x = math.cos(pt2.latitude)*math.sin(dL)
+	-- local y = math.cos(pt1.latitude)*math.sin(pt2.latitude) - math.sin(pt1.latitude)*math.cos(pt2.latitude)*math.cos(dL)
+	-- local brng = math.atan2(x,y)
+
+	local y = math.sin(pt2.longitude - pt1.longitude)*math.cos(pt2.latitude)
+	local x = math.cos(pt1.latitude)*math.cos(pt2.latitude) - math.sin(pt1.latitude)*math.cos(pt2.latitude)*math.cos(pt2.longitude - pt1.longitude)
+	local phi = math.atan2(y, x)
+	local brng = (phi*180/math.pi + 360) % 360
 	return brng
+end
+
+function utils.LOtoMGRS(pt1)
+	return coord.LLtoMGRS(coord.LOtoLL(pt1))
+end
+
+function utils.MGRStoString(mgrs)
+	return mgrs.UTMZone .. ' ' .. mgrs.MGRSDigraph .. ' ' .. mgrs.Easting .. ' ' .. mgrs.Northing
+end
+
+function utils.bearingToPt(pt1, pt2)
+	local bearing_vector = {
+		x = pt2.x - pt1.x,
+		y = pt2.y - pt1.y,
+		z = pt2.z - pt1.z
+		}
+	local bearing_rad = math.atan2(bearing_vector.z, bearing_vector.x)
+	if bearing_rad < 0 then
+		bearing_rad = bearing_rad + (2 * math.pi)
+	end
+  local bearing = math.deg(bearing_rad)
+	return bearing
 end
 
 function utils.gpInfoMiz(gp)
@@ -100,14 +160,12 @@ function utils.gpInfoMiz(gp)
 		for _, gpType in pairs(county) do
 			for _, vehGp in pairs(county.vehicle.group) do
 				if vehGp.name == gpName then
-					env.info("found "..gpName.." in miz")
 					gpInfo = vehGp
 					return gpInfo
 				end
 			end
 			for _, planeGp in pairs(county.plane.group) do
 				if planeGp.name == gpName then
-					env.info("found "..gpName.." in miz")
 					gpInfo = planeGp
 					return gpInfo
 				end
@@ -123,7 +181,6 @@ function utils.STMtoGpTable(stmLink)
 		for _, coa in pairs(staticTemplate.coalition) do
 			for _, country in pairs(coa.country) do
 				if country.vehicle ~= nil then
-					env.info("There's a vehicle gp in "..country.name)
 					for _, vehGp in pairs(country.vehicle.group) do
 						gps[#gps+1] = {table = vehGp, cntry = country.id, ctgry = Group.Category.GROUND}
 					end
@@ -236,7 +293,6 @@ function utils.nearestGpFromCoalition(gpName, coa, cat)
 			end
 		end
 	end
-	env.info("Nearest Group: "..current)
 	return current
 end
 
@@ -244,6 +300,23 @@ function utils.pointInZone(pnt, zone)
 	xP = pnt.x
 	zP = pnt.y
 	return utils.point_inside_poly(xP,zP, zone)
+end
+
+function utils.coaGpsInZone(coa, zone, type)
+	local gps = {}
+	local inZone = false
+	for _, gp in pairs(coalition.getGroups(coa,type)) do
+		inZone = false
+		for _, unt in pairs(gp:getUnits()) do
+			if utils.pointInZone(unt:getPoint(), zone) ~= nil then
+				inZone=true
+			end
+		end
+		if inZone then
+			gps[#gps+1] = gp
+		end
+	end
+	return gps
 end
 
 return utils

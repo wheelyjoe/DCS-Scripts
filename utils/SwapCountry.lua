@@ -1,4 +1,4 @@
-local utils = 'DCS-Scripts.utils.utils'
+local utils = require 'DCS-Scripts.utils.utils'
 
 local foundUnits = {}
 local SwapCountry = {}
@@ -86,10 +86,7 @@ function SwapCountry.swapInRangeOfUnit(untName, range, ctgry)
 	world.searchObjects(Object.Category.UNIT, volS, ifFound)
 	for _, found in pairs(foundUnits) do
 		foundUnit = Unit.getByName(found)
-		env.info("found units")
-		env.info("category: "..ctgry)
 		if ctgry~=nil then
-			env.info("foundUnit category is: "..foundUnit:getGroup():getCategory())
 			if foundUnit:getGroup():getCategory() == ctgry then
 				if foundUnit:getCoalition() == 0 then
 					if foundUnit:getCoalition() ~= unt:getCoalition() then
@@ -102,7 +99,6 @@ function SwapCountry.swapInRangeOfUnit(untName, range, ctgry)
 				end
 			end
 		else
-			env.info("in here")
 			if foundUnit:getCoalition() == 0 then
 				if foundUnit:getCoalition() ~= unt:getCoalition() then
 					if unt:getCoalition() == 1 then

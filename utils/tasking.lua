@@ -96,6 +96,26 @@ function tasking.noFlyZone(enfGroup, coaDef, coaOut, zone)
 	end
 end
 
+function tasking.noFlyZoneV2(enfGroup, coaDef, coaOut, zone)
+	if utils.coaGpsInZone(coaOut, zone, Group.Category.AIRPLANE) or
+		utils.coaGpsInZone(coaOut, zone, Group.Category.HELICOPTER) then
+		for _, gpName in pairs(enfGroup) do
+			if coaDef == 1 then
+				SwapCountry.swapGp(Group.getByName(gpName), "CJTF_RED")
+			else
+				SwapCountry.swapGp(Group.getByName(gpName), "CJTF_BLUE")
+			end
+		end
+	else
+		env.info("No hostiles in NFZ") --TODO: chcek this
+		for _, gpName in pairs(enfGroup) do
+			if gp:getCoalition() ~= 0 then
+				SwapCountry.swapGp(Group.getByName(gpName), "UN_PEACEKEEPERS")
+			end
+		end
+	end
+end
+
 function tasking.startFACTask(gpName, freq)
 	taskTable = {
 	  id = 'FAC',

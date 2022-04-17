@@ -8,7 +8,7 @@ local lCode
 deathHandler = {}
 local nineline = {["text"] = "No targets"}
 
---TODO: Make work for multiple FAC(A)
+--TODO: Make work for multiple FAC(A) do for JTACs as well
 
 local function LLstrings(pos) -- pos is a Vec3	THIS Converts DCS coordiantes to Lat/Long
 
@@ -33,15 +33,15 @@ local function blank()
 end
 
 local function destroyRay(ray)	--function to remove spot
-
 	Spot.destroy(ray)
 end
 
 local function generateNineline(target, afacName)		--called to generate nineline text
 	local N, E = LLstrings(target:getPoint())
-	local grid = coord.LLtoMGRS(coord.LOtoLL(target))
-	env.info("N: "..N.."\nE: "..E)
-	nineline = {["text"] = "This is ".. afacName..",\nTarget = "..target:getTypeName().."\nTarget Location = \n"..N.." N\n".. E .." E\nMGRS: "..grid.UTMZone .. ' ' .. grid.MGRSDigraph .. ' ' .. grid.Easting .. ' ' .. grid.Northing .."\nTarget Mark = Laser, Code: "..lCode}
+	local grid = utils.LOtoMGRS(target:getPoint())
+	nineline = {["text"] = "This is ".. afacName..",\nTarget = "..target:getTypeName()..
+		"\nTarget Location = \n"..N.." N\n".. E .." E\nMGRS: "..
+			utils.MGRStoString(grid).."\nTarget Mark = Laser, Code: "..lCode}
 end
 
 local function laseTarget(target, afacName, code)		-- turns on laser for target and generates nineline
@@ -52,14 +52,12 @@ end
 
 local function ifFoundU(foundItem, val)		--run on any units found
 	if foundItem:getCoalition() == 1 and foundItem:getLife() > 0 then
-		env.info("Found red unit, name: "..foundItem:getName())
 		foundUnitsRed[#foundUnitsRed+1] = foundItem
 	end
 end
 
 local function ifFoundS(foundItem, val)		-- run on any statics found
 	if foundItem:getCoalition() == 1 and foundItem:getLife() > 0 then
-		env.info("Found red static, name: "..foundItem:getName())
 		foundUnitsRed[#foundUnitsRed+1] = foundItem
 	end
 end
@@ -69,7 +67,6 @@ local function generateTasking(params)		--sends nineline and starts laser
 	code = params[2]
 	laseTarget(targetUnit, afacName, code)
 	trigger.action.outTextForCoalition(2, nineline.text, 15)
-	env.info(nineline.text)
 	missionCommands.removeItemForCoalition(2, "Request Tasking - "..jtacName)
 	missionCommands.addCommandForCoalition(2, nineline.text, nil, blank, {})
 end
@@ -92,7 +89,6 @@ local function onDeathEvent(event)			-- run when something dies
 			if #foundUnitsRed > 0 then
 				trigger.action.outTextForCoalition(2, "Target Destroyed, marking next target", 15)
 				targetUnit = foundUnitsRed[math.random(1, #foundUnitsRed)]
-				env.info("Targeting " ..targetUnit:getName())
 				missionCommands.addCommandForCoalition(2, "Request Tasking - "..jtacName, nil, generateTasking, {afacName, code})
 			else
 				trigger.action.outTextForCoalition(2, "Target Destroyed, no more targets in range of FAC(A)", 15)
