@@ -13,19 +13,28 @@ function SwapCountry.isUntInZone(gp, zone)
 end
 
 function SwapCountry.swapGp(gp, endCountry)
-	if not gp then
+	local remUnt = 1
+	if not gp or #gp:getUnits() == 0 then
 		return
 	end
 	if gp:getUnit(1):getCountry() == country.id[endCountry] then
 		return
 	end
 	local gpTable = utils.gpInfoMiz(gp)
+	gpTable.units = {}
 	if gpTable ~= nil then
 		for i, unt in pairs(gp:getUnits()) do
-			gpTable.units[i].alt = gp:getUnit(i):getPoint().y
-			gpTable.units[i].speed = utils.getMag(gp:getUnit(i):getVelocity())
-			gpTable.units[i].x = gp:getUnit(i):getPoint().x
-			gpTable.units[i].y = gp:getUnit(i):getPoint().z
+			if unt:isExist() == true and unt:isActive() == true and unt:getLife() >= 2 then
+				env.info("Unt alive: "..unt:getName()..", with health: "..unt:getLife())
+				gpTable.units[remUnt].alt = unt:getPoint().y
+				gpTable.units[remUnt].speed = utils.getMag(gp:getUnit(i):getVelocity())
+				gpTable.units[remUnt].x = unt:getPoint().x
+				gpTable.units[remUnt].y = unt:getPoint().z
+				gpTable.units[remUnt].heading = utils.getHeading(unt)
+			else
+				env.info("Unt "..unt:getName().." is dead")
+				--gpTable.units[i] = nil
+			end
 		end
 		gp:destroy()
 		coalition.addGroup(country.id[endCountry], gp:getCategory(), gpTable)
@@ -109,6 +118,13 @@ function SwapCountry.swapInRangeOfUnit(untName, range, ctgry)
 				end
 			end
 		end
+	end
+end
+
+function SwapCountry.swapGps(gpArray, cntry)
+	for _, gpName in pairs(gpArray) do
+		gp = Group.getByName(gpName)
+		SwapCountry.swapGp(gp, cntry)
 	end
 end
 

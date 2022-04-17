@@ -35,6 +35,17 @@ function utils.relAngle(hdg1,hdg2)
 	return (ang + 180) % 360 - 180
 end
 
+function utils.getHeading(unt)
+	local pos = unt:getPosition()
+	if pos then
+		local heading = math.atan2(pos.x.z, pos.x.x)
+		if heading < 0 then
+			heading = heading + 2*math.pi	-- put heading in range of 0 to 2*pi
+		end
+		return heading
+	end
+end
+
 function utils.gpToTable(gp) --Issues with moving gps
 	local gpTable = {
 			["country"] = gp:getUnit(1):getCountry(),
@@ -58,7 +69,9 @@ function utils.gpToTable(gp) --Issues with moving gps
 				["unitId"] = unt:getID(),
 				["x"] = unt:getPoint().x,
 				["y"] = unt:getPoint().z,
+				["alt"] = unt:getPoint().y,
 				["name"] = unt:getName(),
+				["speed"] = utils.getMag(unt:getVelocity()),
 				["heading"] =  math.atan2(unt:getPosition().x.z, unt:getPosition().x.x),
 			}
 	end
@@ -168,6 +181,27 @@ function utils.gpInfoMiz(gp)
 				if planeGp.name == gpName then
 					gpInfo = planeGp
 					return gpInfo
+				end
+			end
+		end
+	end
+end
+
+function utils.gpRouteMiz(gp)
+	local gpName = gp:getName()
+	local coa = gp:getCoalition()
+	for _, county in pairs(env.mission.coalition.neutrals.country) do
+		for _, gpType in pairs(county) do
+			for _, vehGp in pairs(county.vehicle.group) do
+				if vehGp.name == gpName then
+					gpRoute = vehGp.route
+					return gpRoute
+				end
+			end
+			for _, planeGp in pairs(county.plane.group) do
+				if planeGp.name == gpName then
+					gpRoute = planeGp.route
+					return gpRoute
 				end
 			end
 		end
@@ -298,7 +332,7 @@ end
 
 function utils.pointInZone(pnt, zone)
 	xP = pnt.x
-	zP = pnt.y
+	zP = pnt.z
 	return utils.point_inside_poly(xP,zP, zone)
 end
 
@@ -308,12 +342,15 @@ function utils.coaGpsInZone(coa, zone, type)
 	for _, gp in pairs(coalition.getGroups(coa,type)) do
 		inZone = false
 		for _, unt in pairs(gp:getUnits()) do
-			if utils.pointInZone(unt:getPoint(), zone) ~= nil then
+			if utils.pointInZone(unt:getPoint(), zone) then
+				trigger.action.outText("Unt in zone", 5)
 				inZone=true
 			end
 		end
-		if inZone then
+		if inZone == true then
 			gps[#gps+1] = gp
+		else
+			trigger.action.outText("Not in zone", 5)
 		end
 	end
 	return gps

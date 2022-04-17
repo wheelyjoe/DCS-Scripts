@@ -27,7 +27,6 @@ function spawning.teleportGp(gpName, pt)
 	end
 	Group.getByName(gpName):destroy()
 	coalition.addGroup(newGp.country, newGp.category, newGp)
-	--TODO: Stop spawning in wrong place
 end
 
 return spawning

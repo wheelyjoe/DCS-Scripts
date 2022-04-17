@@ -97,21 +97,17 @@ function tasking.noFlyZone(enfGroup, coaDef, coaOut, zone)
 end
 
 function tasking.noFlyZoneV2(enfGroup, coaDef, coaOut, zone)
-	if utils.coaGpsInZone(coaOut, zone, Group.Category.AIRPLANE) or
-		utils.coaGpsInZone(coaOut, zone, Group.Category.HELICOPTER) then
-		for _, gpName in pairs(enfGroup) do
-			if coaDef == 1 then
-				SwapCountry.swapGp(Group.getByName(gpName), "CJTF_RED")
-			else
-				SwapCountry.swapGp(Group.getByName(gpName), "CJTF_BLUE")
-			end
-		end
+	local trespGps = utils.coaGpsInZone(coaOut, zone, Group.Category.AIRPLANE)
+	trigger.action.outText("There are: "..#trespGps.." hostile gps in the NFZ", 5)
+	if  #trespGps<1 then
+		trigger.action.outText("No hostiles in NFZ", 5)
+		SwapCountry.swapGps(enfGroup, "UN_PEACEKEEPERS")
 	else
-		env.info("No hostiles in NFZ") --TODO: chcek this
-		for _, gpName in pairs(enfGroup) do
-			if gp:getCoalition() ~= 0 then
-				SwapCountry.swapGp(Group.getByName(gpName), "UN_PEACEKEEPERS")
-			end
+		trigger.action.outText("Hostiles in NFZ", 5)
+		if coaDef == 1 then
+			SwapCountry.swapGps(enfGroup, "CJTF_RED")
+		else
+			SwapCountry.swapGps(enfGroup, "CJTF_BLUE")
 		end
 	end
 end
