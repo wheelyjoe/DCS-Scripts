@@ -35,6 +35,27 @@ function utils.relAngle(hdg1,hdg2)
 	return (ang + 180) % 360 - 180
 end
 
+function utils.gpInfoMiz(gp)
+	local gpName = gp:getName()
+	local coa = gp:getCoalition()
+	for _, county in pairs(env.mission.coalition.neutrals.country) do
+		for _, gpType in pairs(county) do
+			for _, vehGp in pairs(county.vehicle.group) do
+				if vehGp.name == gpName then
+					gpInfo = vehGp
+					return gpInfo
+				end
+			end
+			for _, planeGp in pairs(county.plane.group) do
+				if planeGp.name == gpName then
+					gpInfo = planeGp
+					return gpInfo
+				end
+			end
+		end
+	end
+end
+
 function utils.getHeading(unt)
 	local pos = unt:getPosition()
 	if pos then
@@ -46,19 +67,149 @@ function utils.getHeading(unt)
 	end
 end
 
+function utils.gpInMiz(gp)
+	local gpName = gp:getName()
+	local coa = gp:getCoalition()
+	for _, county in pairs(env.mission.coalition.neutrals.country) do
+		for _, gpType in pairs(county) do
+			for _, vehGp in pairs(county.vehicle.group) do
+				if vehGp.name == gpName then
+					return true
+				end
+			end
+			for _, planeGp in pairs(county.plane.group) do
+				if planeGp.name == gpName then
+					return true
+				end
+			end
+			for _, heliGp in pairs(county.helicopter.group) do
+				if heliGp.name == gpName then
+					return true
+				end
+			end
+			for _, shipGp in pairs(county.ship.group) do
+				if shipGp.name == gpName then
+					return true
+				end
+			end
+		end
+		for _, staticGp in pairs(county.ship.group) do
+			if staticGp.name == gpName then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+function utils.gpRouteMiz(gp)
+	local gpName = gp:getName()
+	local coa = gp:getCoalition()
+	for _, county in pairs(env.mission.coalition.neutrals.country) do
+		for _, gpType in pairs(county) do
+			for _, vehGp in pairs(county.vehicle.group) do
+				if vehGp.name == gpName then
+					return vehGp.route
+				end
+			end
+			for _, planeGp in pairs(county.plane.group) do
+				if planeGp.name == gpName then
+					return planeGp.route
+				end
+			end
+			for _, heliGp in pairs(county.helicopter.group) do
+				if heliGp.name == gpName then
+					return heliGp.route
+				end
+			end
+			for _, shipGp in pairs(county.ship.group) do
+				if shipGp.name == gpName then
+					return shipGp.route
+				end
+			end
+		end
+		return nil
+	end
+end
+
+function utils.gpTaskMiz(gp)
+	local gpName = gp:getName()
+	local coa = gp:getCoalition()
+	for _, county in pairs(env.mission.coalition.neutrals.country) do
+		for _, gpType in pairs(county) do
+			for _, vehGp in pairs(county.vehicle.group) do
+				if vehGp.name == gpName then
+					return vehGp.task
+				end
+			end
+			for _, planeGp in pairs(county.plane.group) do
+				if planeGp.name == gpName then
+					return planeGp.task
+				end
+			end
+			for _, heliGp in pairs(county.helicopter.group) do
+				if heliGp.name == gpName then
+					return heliGp.task
+				end
+			end
+		end
+		return nil
+	end
+end
+
+function utils.untPayloadMiz(unt)
+	local untName = unt:getName()
+	local coa = unt:getGroup():getCoalition()
+	for _, county in pairs(env.mission.coalition.neutrals.country) do
+		for _, gpType in pairs(county) do
+			for _, planeGp in pairs(county.plane.group) do
+				for _, unt in pairs(planeGp.units) do
+					if unt.name == untName then
+						return unt.payload
+					end
+				end
+			end
+			for _, heliGp in pairs(county.helicopter.group) do
+				if heliGp.name == gpName then
+					for _, unt in pairs(heliGp.units) do
+						if unt.name == untName then
+							return unt.payload
+						end
+					end
+				end
+			end
+		end
+		return nil
+	end
+end
+
 function utils.gpToTable(gp) --Issues with moving gps
+	local route = {}
+	local payload = {}
+	local source
+	if utils.gpInMiz(gp) then
+		route = utils.gpRouteMiz(gp)
+		task = utils.gpTaskMiz(gp)
+		source = "miz"
+	elseif spawning.isSTMSpawn(gp) ~= nil then
+		route = spawning.gpRouteSTM(gp)
+		source = "stm"
+	end
 	local gpTable = {
 			["country"] = gp:getUnit(1):getCountry(),
 			["category"] = gp:getCategory(),
-			["heading"] = math.atan2(gp:getUnit(1):getPosition().x.z, gp:getUnit(1):getPosition().x.x),
+			["heading"] = utils.getHeading(gp:getUnit(1)),
 			["groupId"] = gp:getID(),
 			["y"] = gp:getUnit(1):getPoint().z,
 			["x"] = gp:getUnit(1):getPoint().x,
 			["name"] = gp:getName(),
 			["units"] = {},
+			["route"] = route,
+			["task"] = task
 	}
 	for _, unt in pairs(gp:getUnits()) do
-			gpTable.units[#gpTable.units+1] = {
+		local index = #gpTable.units+1
+			gpTable.units[index] = {
 				["category"] = gp:getCategory(),
 				["type"] = unt:getTypeName(),
 				["offsets"] = {
@@ -74,6 +225,22 @@ function utils.gpToTable(gp) --Issues with moving gps
 				["speed"] = utils.getMag(unt:getVelocity()),
 				["heading"] =  math.atan2(unt:getPosition().x.z, unt:getPosition().x.x),
 			}
+			if source == "miz" then
+				env.info(utils.untPayloadMiz(unt).fuel)
+				gpTable.units[index]["payload"] = utils.untPayloadMiz(unt)
+			elseif source == "stm" then
+				gpTable.units[index]["payload"] = spawning.untPayloadSTM(unt)
+			end
+	end
+	return gpTable
+end
+
+function utils.gpToTableV2(gp) --TODO:relative positions
+	local gpTable = {}
+	if utils.gpInMiz(gp) then
+		gpTable = utils.gpInfoMiz(gp)
+	elseif spawning.isSTMSpawn(gp) ~= nil then
+		gpTable = spawning.gpInfoSTM(gp)
 	end
 	return gpTable
 end
@@ -164,48 +331,6 @@ function utils.bearingToPt(pt1, pt2)
 	end
   local bearing = math.deg(bearing_rad)
 	return bearing
-end
-
-function utils.gpInfoMiz(gp)
-	local gpName = gp:getName()
-	local coa = gp:getCoalition()
-	for _, county in pairs(env.mission.coalition.neutrals.country) do
-		for _, gpType in pairs(county) do
-			for _, vehGp in pairs(county.vehicle.group) do
-				if vehGp.name == gpName then
-					gpInfo = vehGp
-					return gpInfo
-				end
-			end
-			for _, planeGp in pairs(county.plane.group) do
-				if planeGp.name == gpName then
-					gpInfo = planeGp
-					return gpInfo
-				end
-			end
-		end
-	end
-end
-
-function utils.gpRouteMiz(gp)
-	local gpName = gp:getName()
-	local coa = gp:getCoalition()
-	for _, county in pairs(env.mission.coalition.neutrals.country) do
-		for _, gpType in pairs(county) do
-			for _, vehGp in pairs(county.vehicle.group) do
-				if vehGp.name == gpName then
-					gpRoute = vehGp.route
-					return gpRoute
-				end
-			end
-			for _, planeGp in pairs(county.plane.group) do
-				if planeGp.name == gpName then
-					gpRoute = planeGp.route
-					return gpRoute
-				end
-			end
-		end
-	end
 end
 
 function utils.STMtoGpTable(stmLink)

@@ -14,17 +14,17 @@ end
 
 function SwapCountry.swapGp(gp, endCountry)
 	local remUnt = 1
+	env.info("rem unts = "..#gp:getUnits())
 	if not gp or #gp:getUnits() == 0 then
 		return
 	end
 	if gp:getUnit(1):getCountry() == country.id[endCountry] then
 		return
 	end
-	local gpTable = utils.gpInfoMiz(gp)
-	gpTable.units = {}
+	local gpTable = utils.gpToTableV2(gp)
 	if gpTable ~= nil then
 		for i, unt in pairs(gp:getUnits()) do
-			if unt:isExist() == true and unt:isActive() == true and unt:getLife() >= 2 then
+			if unt:isExist() == true and unt:isActive() == true and unt:getLife() >= 1 then
 				env.info("Unt alive: "..unt:getName()..", with health: "..unt:getLife())
 				gpTable.units[remUnt].alt = unt:getPoint().y
 				gpTable.units[remUnt].speed = utils.getMag(gp:getUnit(i):getVelocity())
