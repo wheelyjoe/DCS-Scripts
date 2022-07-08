@@ -269,7 +269,6 @@ function utils.gpToTableV2(gp) --TODO:relative positions
 			["speed"] = utils.getMag(unt:getVelocity()),
 			["heading"] =  math.atan2(unt:getPosition().x.z, unt:getPosition().x.x),
 		}
-
 	end
 	return gpTable
 end
