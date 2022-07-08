@@ -162,18 +162,24 @@ function utils.untPayloadMiz(unt)
 	local coa = unt:getGroup():getCoalition()
 	for _, county in pairs(env.mission.coalition.neutrals.country) do
 		for _, gpType in pairs(county) do
-			for _, planeGp in pairs(county.plane.group) do
-				for _, unt in pairs(planeGp.units) do
-					if unt.name == untName then
-						return unt.payload
+			if county.plane then
+				for _, planeGp in pairs(county.plane.group) do
+					for _, fnd in pairs(planeGp.units) do
+						env.info("fnd.name =" ..fnd.name .. ", untName = "..untName)
+						if fnd.name == untName then
+							env.info("found unit, alt: "..fnd.payload.fuel)
+							return fnd.payload
+						end
 					end
 				end
 			end
-			for _, heliGp in pairs(county.helicopter.group) do
-				if heliGp.name == gpName then
-					for _, unt in pairs(heliGp.units) do
-						if unt.name == untName then
-							return unt.payload
+			if county.helictoper then
+				for _, heliGp in pairs(county.helicopter.group) do
+					if heliGp.name == gpName then
+						for _, fnd in pairs(heliGp.units) do
+							if fnd.name == untName then
+								return fnd.payload
+							end
 						end
 					end
 				end
@@ -193,6 +199,7 @@ function utils.gpToTable(gp) --Issues with moving gps
 		source = "miz"
 	elseif spawning.isSTMSpawn(gp) ~= nil then
 		route = spawning.gpRouteSTM(gp)
+		task = spawning.gpTaskSTM(gp)
 		source = "stm"
 	end
 	local gpTable = {
@@ -212,11 +219,6 @@ function utils.gpToTable(gp) --Issues with moving gps
 			gpTable.units[index] = {
 				["category"] = gp:getCategory(),
 				["type"] = unt:getTypeName(),
-				["offsets"] = {
-					["x"] = utils.relPos({x = gpTable.x, y = 0, z = gpTable.y}, unt:getPoint()).x,
-					["y"] = utils.relPos({x = gpTable.x, y = 0, z = gpTable.y}, unt:getPoint()).z,
-					["heading"] = utils.relAngle(gpTable.heading, math.atan2(unt:getPosition().x.z, unt:getPosition().x.x)),
-				},
 				["unitId"] = unt:getID(),
 				["x"] = unt:getPoint().x,
 				["y"] = unt:getPoint().z,
@@ -237,10 +239,37 @@ end
 
 function utils.gpToTableV2(gp) --TODO:relative positions
 	local gpTable = {}
+	local source
 	if utils.gpInMiz(gp) then
+		env.info("Gp is from miz")
+		source = "miz"
 		gpTable = utils.gpInfoMiz(gp)
 	elseif spawning.isSTMSpawn(gp) ~= nil then
 		gpTable = spawning.gpInfoSTM(gp)
+		env.info("Gp is from STM")
+		source = "stm"
+	end
+	gpTable.units = {}
+	local index = 0
+	for _, unt in pairs(gp:getUnits()) do
+		index = index + 1
+		if source == "miz" then
+			gpTable.units[index] = {["payload"] = utils.untPayloadMiz(unt)}
+		elseif source == "stm" then
+			gpTable.units[index].payload = spawning.untPayloadSTM(unt)
+		end
+		gpTable.units[index] = {
+			["category"] = gp:getCategory(),
+			["type"] = unt:getTypeName(),
+			["unitId"] = unt:getID(),
+			["x"] = unt:getPoint().x,
+			["y"] = unt:getPoint().z,
+			["alt"] = unt:getPoint().y,
+			["name"] = unt:getName(),
+			["speed"] = utils.getMag(unt:getVelocity()),
+			["heading"] =  math.atan2(unt:getPosition().x.z, unt:getPosition().x.x),
+		}
+
 	end
 	return gpTable
 end

@@ -3,12 +3,26 @@ local utils = require 'DCS-Scripts.utils.utils'
 local SwapCountry = require 'DCS-Scripts.utils.SwapCountry'
 local afac = require "DCS-Scripts.utils.faca"
 
+--[[
+	fcn: changeTaskForGp
+	Paramters:
+		gpName - Name of an AI group to assign a task
+		newTask - The task table
+--]]
 function tasking.changeTaskForGp(gpName, newTask)
 	local gp = Group.getByName(gpName)
 	local gpCtrlr = gp:getController()
 	gpCtrlr:pushTask(newTask)
 end
 
+--[[
+
+	fcn: netTaskAttackGp
+	parameters:
+		atkName - group to be assigned to attacking
+		tgtName - group to be attacked
+
+--]]
 function tasking.newTaskAttackGp(atkName, tgtName)
 	local tgtGp = Group.getByName(tgtName)
 	local taskTable = {
@@ -21,6 +35,12 @@ function tasking.newTaskAttackGp(atkName, tgtName)
 	tasking.changeTaskForGp(atkName, taskTable)
 end
 
+--[[
+	fcn: newTaskEscortGp
+	parameters:
+		esctName - groupName of group to conduct escort
+		tgtName - groupName of group to be escorted
+--]]
 function tasking.newTaskEscortGp(esctName, tgtName)
 	local tgtGp = Group.getByName(tgtName)
 	local taskTable = {
@@ -66,7 +86,8 @@ function tasking.noFlyZonePlyr(enfGroup, coaDef, coaOut, zone)
 		end
 	end
 end
-
+-- fcn: noFlyZone
+-- enf groups as netural will defend zone from coaOut, by change to coaDef on trespass
 function tasking.noFlyZone(enfGroup, coaDef, coaOut, zone)
 	for _, gp in pairs(coalition.getGroups(coaOut,Group.Category.AIRPLANE)) do
 		for _, unt in pairs(gp:getUnits()) do
@@ -96,6 +117,8 @@ function tasking.noFlyZone(enfGroup, coaDef, coaOut, zone)
 	end
 end
 
+-- fcn: noFlyZoneV2
+-- enf groups as netural will defend zone from coaOut, by change to coaDef on trespass
 function tasking.noFlyZoneV2(enfGroup, coaDef, coaOut, zone)
 	local trespGps = utils.coaGpsInZone(coaOut, zone, Group.Category.AIRPLANE)
 	trigger.action.outText("There are: "..#trespGps.." hostile gps in the NFZ", 5)
@@ -112,6 +135,8 @@ function tasking.noFlyZoneV2(enfGroup, coaDef, coaOut, zone)
 	end
 end
 
+-- fcn: startFACTask
+-- gives a given gpName the fac task on given freq
 function tasking.startFACTask(gpName, freq)
 	taskTable = {
 	  id = 'FAC',
@@ -125,6 +150,8 @@ function tasking.startFACTask(gpName, freq)
 	tasking.changeTaskForGp(gpName, taskTable)
 end
 
+-- fcn: newTaskOrbitPt
+-- get a gp (by name) to orbit a pt at an alt
 function tasking.newTaskOrbitPt(gpName, alt, pt)
 	--TODO: Work out distance from gp to pt and speed, use SDT to work out ETA. Schedule search for then
 	taskTable = {
@@ -138,6 +165,8 @@ function tasking.newTaskOrbitPt(gpName, alt, pt)
 	tasking.changeTaskForGp(gpName, taskTable)
 end
 
+-- fcn: faca
+-- sends  a gp to a point at to orbit with a laser on a code on radio freq
 function tasking.FACA(gpName, location, code, freq)
 	local gp = Group.getByName(gpName)
 	local unt = gp:getUnit(1)

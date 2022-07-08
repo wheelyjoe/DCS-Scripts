@@ -3,18 +3,20 @@ local utils = require 'DCS-Scripts.utils.utils'
 local foundUnits = {}
 local SwapCountry = {}
 
+-- fcn: isUntInZone
+-- takes a gp and a zone and returns whether gp is in zone
 function SwapCountry.isUntInZone(gp, zone)
 	local gpPoint = {
 		x = gp:getPoint().x,
 		y = gp:getPoint().z,
 	}
-
 	return utils.pointInZone(gpPoint, zone)
 end
 
+-- fnc: swapGp
+-- takes a gp and country and respanws group in same location as new country
 function SwapCountry.swapGp(gp, endCountry)
-	local remUnt = 1
-	env.info("rem unts = "..#gp:getUnits())
+	local category = gp:getCategory()
 	if not gp or #gp:getUnits() == 0 then
 		return
 	end
@@ -23,24 +25,13 @@ function SwapCountry.swapGp(gp, endCountry)
 	end
 	local gpTable = utils.gpToTableV2(gp)
 	if gpTable ~= nil then
-		for i, unt in pairs(gp:getUnits()) do
-			if unt:isExist() == true and unt:isActive() == true and unt:getLife() >= 1 then
-				env.info("Unt alive: "..unt:getName()..", with health: "..unt:getLife())
-				gpTable.units[remUnt].alt = unt:getPoint().y
-				gpTable.units[remUnt].speed = utils.getMag(gp:getUnit(i):getVelocity())
-				gpTable.units[remUnt].x = unt:getPoint().x
-				gpTable.units[remUnt].y = unt:getPoint().z
-				gpTable.units[remUnt].heading = utils.getHeading(unt)
-			else
-				env.info("Unt "..unt:getName().." is dead")
-				--gpTable.units[i] = nil
-			end
-		end
 		gp:destroy()
-		coalition.addGroup(country.id[endCountry], gp:getCategory(), gpTable)
+		coalition.addGroup(country.id[endCountry], category, gpTable)
 	end
 end
 
+-- fcn: swapGpCountry
+-- takes two countries and respawns all units from first to second country
 function SwapCountry.swapGpCountry(startCountry, endCountry)
 	local toSwap = {}
 	for _, coa in pairs(coalition.side) do
@@ -60,6 +51,8 @@ local ifFound = function(foundItem, val)
 	return true
 end
 
+-- fcn: swapTypeCoa
+-- swap all groups of type from coaStart to coaEnd
 function SwapCountry.swapTypeCoa(coaStart, coaEnd, type)
 	local toSwap = {}
 	for _, gp in pairs(coalition.getGroups(coaStart)) do
@@ -81,6 +74,9 @@ function SwapCountry.swapTypeCoa(coaStart, coaEnd, type)
 	end
 end
 
+-- fcn: swapInRangeOfUnit
+-- swap all groups of opposite or neutral side of a category in range of unit
+-- to hostile side
 function SwapCountry.swapInRangeOfUnit(untName, range, ctgry)
 	unt = Unit.getByName(untName)
 	local untPt = unt:getPoint()
@@ -121,10 +117,16 @@ function SwapCountry.swapInRangeOfUnit(untName, range, ctgry)
 	end
 end
 
+-- fcn: swapGps
+-- swap array of groups country to given country
 function SwapCountry.swapGps(gpArray, cntry)
 	for _, gpName in pairs(gpArray) do
 		gp = Group.getByName(gpName)
-		SwapCountry.swapGp(gp, cntry)
+		if gp then
+			SwapCountry.swapGp(gp, cntry)
+		else
+			env.info("Gp: "..gpName.." not found")
+		end
 	end
 end
 

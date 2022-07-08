@@ -4,6 +4,8 @@ local spawning = {}
 
 spawning.spawnedGps = {}
 
+-- fcn: spawnSTM:
+--	takes a stm file location "stmLink" and spawns relevant group
 function spawning.spawnSTM(stmLink)
 	local toSpawn = utils.STMtoGpTable(stmLink)
 	if toSpawn == nil then
@@ -20,6 +22,8 @@ function spawning.spawnSTM(stmLink)
 	end
 end
 
+-- fcn: isSTMspawn
+-- takes a group (gp) and checks if it has been spawned via script
 function spawning.isSTMspawn(gp)
 	for _, spnd in paris(spawning.spawnedGps) do
 		if spnd:getName() == gp:getName() then
@@ -29,6 +33,8 @@ function spawning.isSTMspawn(gp)
 	return nil
 end
 
+-- fcn: gpRouteSTM
+-- takes a group and if it is a spawned group then returns the route table
 function spawning.gpRouteSTM(gp)
 	for _, spnd in paris(spawning.spawnedGps) do
 		if spnd:getName() == gp:getName() then
@@ -38,6 +44,8 @@ function spawning.gpRouteSTM(gp)
 	return nil
 end
 
+-- fnc: gpTaskSTM
+-- takes a group and if it is a spawned group then returns the task table
 function spawning.gpTaskSTM(gp)
 	for _, spnd in paris(spawning.spawnedGps) do
 		if spnd:getName() == gp:getName() then
@@ -47,6 +55,9 @@ function spawning.gpTaskSTM(gp)
 	return nil
 end
 
+-- fcn: untPayloadSTM
+-- takes a unit and if it is from a spawned group then ir returns the original
+-- payload
 function spawning.untPayloadSTM(unt)
 	local gp = unt:getGroup()
 	for _, spnd in paris(spawning.spawnedGps) do
@@ -61,6 +72,8 @@ function spawning.untPayloadSTM(unt)
 	return nil
 end
 
+-- fcn: gpInfoSTM
+-- takes a group and if it is a spawned group then returns the spawned STM table
 function spawning.gpInfoSTM(gp)
 	for _, spnd in paris(spawning.spawnedGps) do
 		if spnd:getName() == gp:getName() then
@@ -70,6 +83,8 @@ function spawning.gpInfoSTM(gp)
 	return nil
 end
 
+-- fnc teleportGp
+-- takes a groupName and vec 2 location and respawns it at location
 function spawning.teleportGp(gpName, pt)
 	local newGp = utils.gpToTable(Group.getByName(gpName))
 	newGp.x = pt.x
