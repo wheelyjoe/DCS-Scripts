@@ -285,6 +285,13 @@ function utils.getDistanceLL(ll1, ll2)
 	return math.sqrt(latDiff*latDiff + longDiff*longDiff)*100
 end
 
+function utils.getDistance3D(point1, point2)
+	local dX = point1.x - point2.x
+	local dY = point1.y - point2.y
+	local dZ = point1.z - point2.z
+	return math.sqrt(dX*dX + dZ*dZ + dY*dY)
+end
+
 function utils.kmToNm(km)
 	return km/1.852
 end
@@ -507,6 +514,19 @@ function utils.coaGpsInZone(coa, zone, type)
 		end
 	end
 	return gps
+end
+
+function  utils.tablelength(T)
+  if T == nil then
+    return 0
+  end
+  local count = 0
+  for _, item in pairs(T) do
+    if item~=nil then
+      count = count + 1
+    end
+  end
+  return count
 end
 
 return utils

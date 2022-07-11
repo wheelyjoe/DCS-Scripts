@@ -2,7 +2,73 @@ local utils = require 'DCS-Scripts.utils.utils'
 
 local spawning = {}
 
+
+
 spawning.spawnedGps = {}
+spawning.unspawnedGps = {}
+
+--[[
+	fcn: loadSTMs
+	parameters:
+		stmFileLink - Link to a folder containing STMs
+	loads all STMs in linked folder into table "unspawnedGps"
+]]--
+function spawning.loadSTMs(stmFileLink)
+	local path = system.pathForFile( nil, stmFileLink )
+	for file in lfs.dir( path ) do
+			if file:lower:match "%.stm$" then
+				dofile(file)
+				for _, coa in pairs(staticTemplate.coalition) do
+					for _, country in pairs(coa.country) do
+						if country.vehicle ~= nil then
+							for _, vehGp in pairs(country.vehicle.group) do
+								unspawnedGps[#unspawnedGps+1] = {table = vehGp, cntry = country.id, ctgry = Group.Category.GROUND}
+							end
+						end
+						if country.helicopter ~= nil then
+							for _, heliGp in pairs(country.helicopter.group) do
+								unspawnedGps[#unspawnedGps+1] = {table = heliGp, cntry = country.id, ctgry = Group.Category.HELICOPTER}
+							end
+						end
+						if country.plane ~= nil then
+							for _, planeGp in pairs(country.plane.group) do
+								unspawnedGps[#unspawnedGps+1] = {table = planeGp, cntry = country.id, ctgry = Group.Category.AIRPLANE}
+							end
+						end
+						if country.ship ~= nil then
+							for _, shipGp in pairs(country.ship.group) do
+								unspawnedGps[#unspawnedGps+1] = {table = shipGp, cntry = country.id, ctgry = Group.Category.SHIP}
+							end
+						end
+						if country.static ~= nil then
+							for _, staticGp in pairs(country.static.group) do
+								for _, unt in pairs(staticGp.units) do
+									unspawnedGps[#unspawnedGps+1] = {table = unt, cntry = country.id, ctgry = "static"}
+								end
+							end
+						end
+					end
+				end
+     end
+	end
+end
+
+function spawning.spawnSTMtable(stmName)
+	for pairs _, gpData in pairs(spawning.unspawnedGps) do
+		if gpData:getName() == stmName then
+			spawning.spawnedGps[#spawning.spawnedGps + 1] = gpData
+			gpData = nil
+	end
+end
+
+function spawning.unspawnSTMtable(stmName)
+	for pairs _, gpData in pairs(spawning.unspawnedGps) do
+		if gpData:getName() == stmName then
+			spawning.unspawnedGps[#spawning.unspawnedGps + 1] = gpData
+			gpData = nil
+	end
+	group:getByName(stmName):delete()
+end
 
 --[[
 	fcn: spawnSTM:
