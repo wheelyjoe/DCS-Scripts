@@ -505,15 +505,39 @@ function IADSHandler:onEvent(event)
   end
 end
 
-function IADS.playerDetected(plyrName) --TODO: This fcn
+function IADS.playerDetected() --TODO: Test this fcn
   for _, detected in pairs(IADS.TrackFiles) do
-    for _, unt in pairs(detected:object:getCategory())
-      if plyrName == unt:getName() then
-        return true
+    for _, unt in pairs(detected.object)
+      for _, plyr in pairs(coalition.getPlayers(1)) do
+        if plyr:getName() == unt:getName() then
+          return true
+        end
+      end
+      for _, plyr in pairs(coalition.getPlayers(0)) do
+        if plyr:getName() == unt:getName() then
+          return true
+        end
       end
     end
   end
   return false
+end
+
+function IADS.coaPlayerDetected(coa) --TODO: Test this fcn
+  for _, detected in pairs(IADS.TrackFiles) do
+    for _, unt in pairs(detected.object)
+      for _, plyr in pairs(coalition.getPlayers(coa)) do
+        if plyr:getName() == unt:getName() then
+          return true
+        end
+      end
+    end
+  end
+  return false
+end
+
+function IADS.returnTracks()
+  return IADS.Trackfiles
 end
 
 function IADS.runIADS()
@@ -585,3 +609,5 @@ function IADS.runIADS()
   --     timer.getTime()+12
   --   )
 end
+
+return IADS
