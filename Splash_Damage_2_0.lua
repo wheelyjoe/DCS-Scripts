@@ -52,7 +52,7 @@ splash_damage_options = {
   ["infantry_cant_fire_health"] = 90,  --if health is below this value after our explosions, set ROE to HOLD to simulate severe injury
   ["debug"] = false,  --enable debugging messages
   ["weapon_missing_message"] = false, --false disables messages alerting you to weapons missing from the explTable
-  ["rocket_multiplier"] = 3, --multiplied by the explTable value for rockets
+  ["rocket_multiplier"] = 1.3, --multiplied by the explTable value for rockets
 }
 
 local script_enable = 1
