@@ -1,43 +1,45 @@
-
 --assert(loadfile("C:\\Users\\spenc\\OneDrive\\Documents\\Eclipe_LDT\\dcs splash damage\\src\\mist.lua"))()
+
 --[[
-2 October 2020
-FrozenDroid:
-- Added error handling to all event handler and scheduled functions. Lua script errors can no longer bring the server down.
-- Added some extra checks to which weapons to handle, make sure they actually have a warhead (how come S-8KOM's don't have a warhead field...?)
-
-28 October 2020
-FrozenDroid: 
-- Uncommented error logging, actually made it an error log which shows a message box on error.
-- Fixed the too restrictive weapon filter (took out the HE warhead requirement)
-
-21 December 2021
-spencershepard (GRIMM):
- SPLASH DAMAGE 2.0:
- -Added blast wave effect to add timed and scaled secondary explosions on top of game objects
- -object geometry within blast wave changes damage intensity
- -damage boost for structures since they are hard to kill, even if very close to large explosions
- -increased some rocket values in explTable
- -missing weapons from explTable will display message to user and log to DCS.log so that we can add what's missing
- -damage model for ground units that will disable their weapons and ability to move with partial damage before they are killed
- -added options table to allow easy adjustments before release
- -general refactoring and restructure
+03 mai 2023 (KERV)
+    correction AGM 154 (https://forum.dcs.world/topic/289290-splash-damage-20-script-make-explosions-better/page/5/#comment-5207760)
  
- 31 December 2021
- spencershepard (GRIMM):
--added many new weapons
--added filter for weapons.shells events
--fixed mission weapon message option
--changed default for damage_model option
- 
- 16 April 2022
- spencershepard (GRIMM):
- added new/missing weapons to explTable
- added new option rocket_multiplier
-
- 06 mars 2023 (Kerv)
+06 mars 2023 (Kerv)
  Add some data for new ammunition
 
+16 April 2022
+    spencershepard (GRIMM):
+    - added new/missing weapons to explTable
+    - added new option rocket_multiplier
+
+31 December 2021
+    spencershepard (GRIMM):
+    -added many new weapons
+    -added filter for weapons.shells events
+    -fixed mission weapon message option
+    -changed default for damage_model option
+ 
+21 December 2021
+    spencershepard (GRIMM):
+     SPLASH DAMAGE 2.0:
+     -Added blast wave effect to add timed and scaled secondary explosions on top of game objects
+     -object geometry within blast wave changes damage intensity
+     -damage boost for structures since they are hard to kill, even if very close to large explosions
+     -increased some rocket values in explTable
+     -missing weapons from explTable will display message to user and log to DCS.log so that we can add what's missing
+     -damage model for ground units that will disable their weapons and ability to move with partial damage before they are killed
+     -added options table to allow easy adjustments before release
+     -general refactoring and restructure
+
+28 October 2020
+    FrozenDroid: 
+    - Uncommented error logging, actually made it an error log which shows a message box on error.
+    - Fixed the too restrictive weapon filter (took out the HE warhead requirement)
+
+2 October 2020
+    FrozenDroid:
+    - Added error handling to all event handler and scheduled functions. Lua script errors can no longer bring the server down.
+    - Added some extra checks to which weapons to handle, make sure they actually have a warhead (how come S-8KOM's don't have a warhead field...?)
 --]]
 
 ----[[ ##### SCRIPT CONFIGURATION ##### ]]----
@@ -114,6 +116,7 @@ explTable = {
   ["AGM_130"] = 582,
   ["AGM_119"] = 176,
   ["AGM_154C"]  = 305,
+  ["AGM_154"]  = 305,
   ["S-24A"] = 24,
   ["S-24B"] = 123,
   ["S-25OF"]  = 194,
