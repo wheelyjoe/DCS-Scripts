@@ -3,6 +3,9 @@
 --[[
 03 mai 2023 (KERV)
     correction AGM 154 (https://forum.dcs.world/topic/289290-splash-damage-20-script-make-explosions-better/page/5/#comment-5207760)
+ 
+06 mars 2023 (Kerv)
+ Add some data for new ammunition
 
 16 April 2022
     spencershepard (GRIMM):
@@ -37,8 +40,6 @@
     FrozenDroid:
     - Added error handling to all event handler and scheduled functions. Lua script errors can no longer bring the server down.
     - Added some extra checks to which weapons to handle, make sure they actually have a warhead (how come S-8KOM's don't have a warhead field...?)
-
-
 --]]
 
 ----[[ ##### SCRIPT CONFIGURATION ##### ]]----
@@ -47,7 +48,7 @@ splash_damage_options = {
   ["static_damage_boost"] = 2000, --apply extra damage to Unit.Category.STRUCTUREs with wave explosions
   ["wave_explosions"] = true, --secondary explosions on top of game objects, radiating outward from the impact point and scaled based on size of object and distance from weapon impact point
   ["larger_explosions"] = true, --secondary explosions on top of weapon impact points, dictated by the values in the explTable
-  ["damage_model"] = false, --allow blast wave to affect ground unit movement and weapons
+  ["damage_model"] = true, --allow blast wave to affect ground unit movement and weapons
   ["blast_search_radius"] = 100, --this is the max size of any blast wave radius, since we will only find objects within this zone
   ["cascade_damage_threshold"] = 0.1, --if the calculated blast damage doesn't exeed this value, there will be no secondary explosion damage on the unit.  If this value is too small, the appearance of explosions far outside of an expected radius looks incorrect.
   ["game_messages"] = true, --enable some messages on screen
@@ -108,13 +109,15 @@ explTable = {
   ["X_29TE"]  = 320,
   ["AGM_84E"] = 488,
   ["AGM_88C"] = 89,
+  ["AGM_88"] = 89,
+  ["AGM_84S"] = 500,					
   ["AGM_122"] = 15,
   ["AGM_123"] = 274,
   ["AGM_130"] = 582,
   ["AGM_119"] = 176,
   ["AGM_154"]  = 305,
   ["S-24A"] = 24,
-  --["S-24B"] = 123,
+  ["S-24B"] = 123,
   ["S-25OF"]  = 194,
   ["S-25OFM"] = 150,
   ["S-25O"] = 150,
@@ -130,6 +133,8 @@ explTable = {
   ["ARAKM70BHE"]  = 4,
   ["BR_500"]  = 118,
   ["Rb 05A"]  = 217,
+  ["RBK_500AO"]  = 256,
+  ["RBK_250"]  = 128,
   ["HEBOMB"]  = 40,
   ["HEBOMBD"] = 40,
   ["MK-81SE"] = 60,
@@ -179,9 +184,53 @@ explTable = {
   ["AGM_65D"] = 130,
   ["AGM_65E"] = 300,
   ["AGM_65F"] = 300,
+  ["AGM_65H"] = 130,
+  ["AGM_65G"] = 300,
+  ["AGM_65K"] = 300,
+  ["AGM_65L"] = 300,
   ["HOT3"] = 15,
   ["AGR_20A"] = 8,
+  ["AGR_20_M282"] = 8,                          -- A10C APKWS  															 
   ["GBU_54_V_1B"] = 118,
+  ["Durandal"] = 100,
+  ["SNEB_TYPE251_F1B"] = 8,
+  ["SNEB_TYPE252_F1B"] = 8,
+  ["SNEB_TYPE253_F1B"] = 8,
+  ["SNEB_TYPE256_F1B"] = 8,
+  ["SNEB_TYPE257_F1B"] = 8,
+  ["SNEB_TYPE251_F4B"] = 4,
+  ["SNEB_TYPE252_F4B"] = 4,
+  ["SNEB_TYPE253_F4B"] = 5,
+  ["SNEB_TYPE256_F4B"] = 6,
+  ["SNEB_TYPE257_F4B"] = 8,
+  ["SNEB_TYPE251_H1"] = 4,
+  ["SNEB_TYPE252_H1"] = 4,
+  ["SNEB_TYPE253_H1"] = 5,
+  ["SNEB_TYPE256_H1"] = 6,
+  ["SNEB_TYPE257_H1"] = 8,
+  ["CBU_52B"] = 32,                             -- CBUs
+  ["CBU_87"] = 32,
+  ["CBU_97"] = 32,
+  ["CBU_99"] = 32,
+  ["ROCKEYE"] = 32,
+  ["MATRA_F4_SNEBT251"] = 8,                    -- Mirage F1 Section
+  ["MATRA_F4_SNEBT253"] = 8,
+  ["MATRA_F4_SNEBT256"] = 8,
+  ["MATRA_F1_SNEBT253"] = 8,
+  ["MATRA_F1_SNEBT256"] = 8,
+  ["SAMP400LD"] = 274,
+  ["SAMP400HD"] = 274,
+  ["SAMP250LD"] = 118,
+  ["SAMP250HD"] = 118,
+  ["SAMP125LD"] = 64,
+  ["BR_250"] = 118,
+  ["BELOUGA"] = 32,
+  ["BLG66_BELOUGA"] = 32,
+  ["Durandal"] = 64,
+  ["BLU107B_DURANDAL"] = 274,
+  ["FFAR Mk5 HEAT"] = 8,                        -- Rockets
+  ["FFAR Mk1 HE"] = 8,
+  ["C5"] = 8                                    -- Mig19P Rockets
   
 }
 
@@ -463,8 +512,8 @@ end
 
 
 if (script_enable == 1) then
-  gameMsg("SPLASH DAMAGE 2 SCRIPT RUNNING")
-  env.info("SPLASH DAMAGE 2 SCRIPT RUNNING")
+  gameMsg("SPLASH DAMAGE 2.1 SCRIPT RUNNING")
+  env.info("SPLASH DAMAGE 2.1 SCRIPT RUNNING")
   timer.scheduleFunction(function() 
       protectedCall(track_wpns)
       return timer.getTime() + refreshRate
